@@ -1,0 +1,90 @@
+body, html {
+    height: 98%;
+}
+
+.spacer {
+    height: calc(100% - 70px);
+    width: 0px;
+    float: right;
+}
+.logo {
+	font-family:oswald;
+	font-size:14pt;
+	font-weight:700;
+	line-height:30px;
+    height: 51px;
+    float: right;
+    clear: right;
+}
+
+.title {
+	overflow: hidden;
+	position: relative;
+	float: left;
+	color: #07a;
+	width: 600px;
+
+	cursor: context-menu;
+	margin:10px auto 10px auto;
+	background:white;
+	border:3px solid #0cf;
+	border-radius:16px;
+	height:100px;
+	padding:0px 10px;
+	box-shadow:0px 0px 15px #000;
+	font-family:oswald;
+	font-size:20pt;
+	font-weight:700;
+	line-height:85px;
+	text-align:center;
+}
+.webbutton {
+	overflow: hidden;
+	position: relative;
+	float: right;
+	cursor: pointer;
+	color: white;
+	width: 100px;
+
+	margin:10px auto 10px auto;
+	background:#07a;
+	border:3px solid #0cf;
+	border-radius:16px;
+	height:30px;
+	padding:0px 10px;
+	box-shadow:0px 0px 15px #000;
+	font-family:oswald;
+	font-size:14pt;
+	font-weight:700;
+	line-height:30px;
+	text-align:center;
+}
+
+.examples {
+	overflow: hidden;
+	position: absolute;
+	top:140px;
+	left:30px;
+	float: left;
+	width: calc(100%-60px);
+}
+.example {
+	width: 200px;
+	height: 400px;
+	border: 3px solid white;
+	margin: 2px;
+}
+
+.bg { 
+    /* The image used */
+    background-image: url("images/background.jpg");
+
+    /* Full height */
+    height: 100%; 
+
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+

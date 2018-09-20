@@ -1,0 +1,171 @@
+html,body { margin:0px;padding:0px;height:100%;background:#fafafa }
+
+
+.bg { 
+    /* The image used */
+    background-image: url("img_girl.jpg");
+
+    /* Full height */
+    height: 100%; 
+
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.menuContainer { position:fixed;top:00px;left:0px;width:207px;bottom:0px;padding:0px 0px;background:#0ae;border-right:3px solid #0af }
+.menuTitleLocation { padding:25px 0px;text-align:center }
+.menuIconLocation { float:left;width:24px }
+.menuitem { padding:10px 15px;line-height:16px;border-bottom:1px dotted #444;cursor:pointer; }
+.logonLocation { position: absolute; top: 50%; left: 50%; color: white; transform: translate(-50%,-50%); -ms-transform: translate(-50%,-50%); }
+.logonContainer { position:relative;overflow:hidden;height:100%;text-align:center;border-style:solid; border:3px solid #0cf; border-radius:16px; padding:5px 5px; box-shadow:0px 0px 15px #000; }
+.content { position:fixed;top:0px;left:210px;right:0px;bottom:0px; overflow:auto;}
+.contentmain { min-width:800px; }
+
+.webbutton {
+	overflow: hidden;
+	position: relative;
+	float: left;
+	cursor: pointer;
+	color: white;
+	width: 100px;
+
+	margin:10px auto 10px auto;
+	background:#07a;
+	border:3px solid #0cf;
+	border-radius:16px;
+	height:30px;
+	padding:0px 10px;
+	box-shadow:0px 0px 15px #000;
+	font-family:oswald;
+	font-size:14pt;
+	font-weight:700;
+	line-height:30px;
+	text-align:center;
+}
+.spacer {
+	overflow: hidden;
+	position: relative;
+	float: left;
+	width: 20px;
+}
+
+
+.mouse { cursor:pointer }
+.oswald { font-family:'Oswald', sans-serif }
+.oxygen { font-family:'Oxygen', sans-serif }
+.white { color:#fff }
+.grey { color:#222 }
+.lgrey { color:#666 }
+.oranje { color:#f90 }
+.blue { color:#0ae }
+.bold { font-weight:700 }
+.f10 { font-size:10px }
+.f12 { font-size:12px }
+.f14 { font-size:14px }
+.f16 { font-size:16px }
+.f20 { font-size:20px }
+.f24 { font-size:24px }
+.f28 { font-size:28px }
+.f40 { font-size:40px }
+
+.butbox { position:relative;overflow:hidden;margin:0px 0px;padding:5px 5px; }
+.butL { float:left;padding:7px 10px; border-radius:5px;overflow:hidden;cursor:pointer; }
+.butR { float:right;padding:7px 10px; border-radius:5px;overflow:hidden;cursor:pointer; }
+.blue_back { background:#0ae }
+.grey_back { background:#222 }
+.box { position:relative;overflow:hidden;margin:10px 0px }
+.box1 { position:relative;overflow:hidden;padding:25px 15px }
+.divider { position:relative;overflow:hidden;height:20px;border-bottom:1px dotted #ccc;margin-bottom:20px }
+.menuitem:hover { background:rgba(255,255,255,0.2); }
+.menuitem:last-child { border-bottom:0px }
+
+
+.but1 {
+	position:relative;overflow:hidden;
+	max-width:80%;
+	margin:10px auto 10px auto;
+	background:rgba(255,255,255,0.9);
+	border:3px solid #0cf;
+	border-radius:16px;
+	height:24px;
+	padding:5px 10px;
+	box-shadow:0px 0px 15px #000;
+}
+.but2 {
+	position:relative;overflow:hidden;
+	max-width:80%;
+	margin:10px auto 10px auto;
+	background:#07a;
+	border:3px solid #0cf;
+	border-radius:16px;
+	height:24px;
+	padding:5px 10px;
+	box-shadow:0px 0px 15px #000;
+	font-family:oswald;
+	font-size:14pt;
+	color:#fff;
+	font-weight:700;
+	line-height:28px;
+	text-align:center;
+}
+.inv {
+	margin:0px;padding:0px;font-size:12pt;
+	width:100%;border:0px;background:none;
+	outline:none;
+	height:100%;
+	font-family:Oswald;
+	color:#444;
+	vertical-align:middle;
+	text-align:center;
+}
+
+
+
+
+
+
+.butcontainer {
+	position:absolute;
+	top:50%;
+	left:30px;
+	right:30px;
+	overflow:hidden;
+	text-align:center;
+	padding-top:10px;
+}
+.but3 {
+	position:relative;overflow:hidden;
+	max-width:80%;
+	margin:10px auto 10px auto;
+	background:#00c652;
+	border:3px solid #00ff6e;
+	border-radius:16px;
+	height:24px;
+	padding:5px 10px;
+	box-shadow:0px 0px 15px #000;
+	font-family:oswald;
+	font-size:14pt;
+	color:#fff;
+	font-weight:700;
+	line-height:28px;
+	text-align:center;
+}
+.but4 {
+	position:relative;overflow:hidden;
+	max-width:80%;
+	margin:10px auto 10px auto;
+	background:#b9b9b9;
+	border:3px solid #d8d8d8;
+	border-radius:16px;
+	height:24px;
+	padding:5px 10px;
+	box-shadow:0px 0px 15px #000;
+	font-family:oswald;
+	font-size:14pt;
+	color:#fff;
+	font-weight:700;
+	line-height:28px;
+	text-align:center;
+}

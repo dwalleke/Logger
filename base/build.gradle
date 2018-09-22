@@ -24,4 +24,5 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.11.0'
     application project(':app')
     feature project(':logon')
+    feature project(':menu')
 }

@@ -2,5 +2,6 @@ apply plugin: 'com.android.instantapp'
 
 dependencies {
     implementation project(':logon')
+    implementation project(':menu')
     implementation project(':base')
 }

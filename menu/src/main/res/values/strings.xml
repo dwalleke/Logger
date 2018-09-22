@@ -1,0 +1,10 @@
+<resources>
+    <string name="tabKlanten">Klanten</string>
+    <string name="tabObjecten">Objecten</string>
+    <string name="tabLogs">Logs</string>
+    <string name="menuBedrijf">Niet ingelogd</string>
+    <string name="menuMedewerker">Niet ingelogd</string>
+    <string name="menuKlant">Geen klant geselecteerd</string>
+    <string name="menuObject">Geen object geselecteerd</string>
+    <string name="searchKlant">Zoek op naam, postcode of plaats</string>
+</resources>

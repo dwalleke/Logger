@@ -3,10 +3,8 @@
     <string name="prompt_email">E-mailadres</string>
     <string name="prompt_password">Wachtwoord</string>
     <string name="action_sign_in">Inloggen</string>
-    <string name="action_sign_in_short">Inloggen</string>
-    <string name="error_invalid_email">Dit is geen valide E-mailadres</string>
-    <string name="error_invalid_password">Dit is geen valide wachtwoord</string>
-    <string name="error_incorrect_password">Dit wachtwoord is niet correct</string>
+    <string name="error_invalid_email">E-mailadres incorrect</string>
+    <string name="error_invalid_password">Wachtwoord incorrect</string>
     <string name="error_field_required">Dit veld is verplicht</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
+    <string name="error_unknown">Onbekende fout</string>
 </resources>

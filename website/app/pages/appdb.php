@@ -1,11 +1,26 @@
 <?php
-$db_host = "localhost"; // prod: mysql.dds.nl
+$db_host = "mysql.dds.nl"; // prod: mysql.dds.nl
 $db_database = "dwaal";
 $db_username = "dwaal";
 $db_password = "arjen1";
 
 $db = new PDO('mysql:host='.$db_host.';dbname='.$db_database.';charset=utf8mb4', $db_username, $db_password);
 
+// javaData
+function getBedrijf($db, $bid) {
+	$stmt = $db->prepare("select * from bedrijven where bid=:bid");
+	$stmt->bindValue(":bid", $bid);
+	$stmt->execute();
+	return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+// javaData
+function getMedewerker($db, $bid, $mid) {
+	$stmt = $db->prepare("select * from medewerkers where email=:mid and bid=:bid");
+	$stmt->bindValue(":bid", $bid);
+	$stmt->bindValue(":mid", $mid);
+	$stmt->execute();
+	return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 // javaCheckObject, javaData
 function getKlant($db, $bid, $kid) {
 	$stmt = $db->prepare("select * from klanten where kid=:kid and bid=:bid");

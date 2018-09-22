@@ -1,28 +1,32 @@
 <?php
-include("../../db.php");
-include("../../util.php");
+include("appdb.php");
+include("apputil.php");
 $data = (object) array();
+$data->errors = (object) array();
+$data->results = (object) array();
+$data->input = $_POST;
 
-if (hasKey("isChangedBid", $_POST)) {
-	$data->bedrijf = getBedrijfByBid($db, $_POST["bid"])["naam"];
+
+if ($_POST["bid"] == "") {
+	$data->results->bedrijf = "Niet ingelogd";
 } else {
-	$data->bedrijf = $_POST["menuBedrijf"];
+	$data->results->bedrijf = getBedrijf($db, $_POST["bid"])["naam"];
 }
-if (hasKey("isChangedMid", $_POST)) {
-	$data->medewerker = getMedewerker($db, $_POST["bid"], $_POST["mid"])["naam"];
+if ($_POST["bid"] == "" || $_POST["mid"] == "") {
+	$data->results->medewerker = "Niet ingelogd";
 } else {
-	$data->medewerker = $_POST["menuMedewerker"];
+	$data->results->medewerker = getMedewerker($db, $_POST["bid"], $_POST["mid"])["naam"];
 }
-if (hasKey("isChangedKid", $_POST)) {
-	$data->klant = getKlant($db, $_POST["bid"], $_POST["kid"])["naam"];
+if ($_POST["bid"] == "" || $_POST["kid"] == "") {
+	$data->results->klant = "Geen klant geselecteerd";
 } else {
-	$data->klant = $_POST["menuKlant"];
+	$data->results->klant = getKlant($db, $_POST["bid"], $_POST["kid"])["naam"];
 }
-if (hasKey("isChangedObj", $_POST)) {
+if ($_POST["obj"] == "") {
+	$data->results->object = "Geen object geselecteerd";
+} else {
 	$r = getQRCode($db, stripslashes($_POST["obj"]));
-	$data->object = $r["merk"]." ".$r["type"];
-} else {
-	$data->object = $_POST["menuObject"];
+	$data->results->object = $r["merk"]." ".$r["type"];
 }
 echo json_encode($data);
 

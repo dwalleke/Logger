@@ -2,8 +2,9 @@
 include("appdb.php");
 include("apputil.php");
 $data = (object) array();
-$data->error = "";
-$data->debug = "";
+$data->errors = (object) array();
+$data->results = (object) array();
+$data->input = $_POST;
 
 /*
 $_POST["bid"] = "102030102030ACBEHIJ9";
@@ -11,7 +12,6 @@ $_POST["kid"] = "15";
 $_POST["obj"] = "2MqtBRSI7jDYC9okH5OcVJyfPZ3Qe1";
 $_POST["log"] = "5b8f0460c5432";
 */
-
 function parse($arg, $value) {
 	$tag = "\"".$arg."\":";
 	$start = strpos($value, $tag);
@@ -24,21 +24,23 @@ function parse($arg, $value) {
 	return $val;
 }
 
+
 if (!hasValue("bid", $_POST)) {
-	$data->error .= "U bent niet ingelogd.\n";
+	$data->errors->bid = "U bent niet ingelogd.\n";
 }
 if (!hasValue("kid", $_POST)) {
-	$data->error .= "U heeft geen klant geselecteerd.\n";
+	$data->errors->kid = "Geen klant geselecteerd.\n";
 }
 if (!hasValue("obj", $_POST)) {
-	$data->error .= "U heeft geen object geselecteerd.\n";
+	$data->errors->kid = "Geen object geselecteerd.\n";
 }
-if ($data->error == "") {
+if (count($data->errors) != 0) {
 	$bid = $_POST["bid"];
 	$kid = $_POST["kid"];
 	$obj = $_POST["obj"];
 	$f = getLogsByQR($db, $obj);
-	$data->html = "<div id='lli'>";
+	$data->results->rows = $f;
+/*
 	foreach ($f as $g) {
 		$lid = $g['lid'];
 		$datum = date('d-m-Y H:i',strtotime($g['datum']));
@@ -119,7 +121,8 @@ if ($data->error == "") {
 		}
 	}
 	$data->html .= "</div>";
-	
+*/	
 }
+
 echo json_encode($data, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_LINE_TERMINATORS);
 ?>

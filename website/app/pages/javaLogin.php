@@ -2,41 +2,31 @@
 include("appdb.php");
 include("apputil.php");
 
-// DEBUG
-/*
-$_POST["email"] = "tester@penbtechniek.nl";
-$_POST["password"] = "techniek";
-*/
-
-
 $data = (object) array();
-$data->error = "";
-if ($_POST) {
-	$data->input = $_POST;
-} else {
-	$data->input = "empty";
-}
+$data->errors = (object) array();
+$data->results = (object) array();
+$data->input = $_POST;
 if (!hasKey("email", $_POST)) {
-	$data->error .= "Geen E-mailadres opgegeven.\n";
+	$data->errors->email = "error_field_required";
 }
 if (!hasKey("password", $_POST)) {
-	$data->error .= "Geen wachtwoord opgegeven.\n";
+	$data->errors->password = "error_field_required";
 }
-if ($data->error == "") {
+if (count($data->errors) != 0) {
 	$medewerker = findMedewerker($db, strtolower($_POST["email"]));
 	$pw = substr(sha1($_POST["password"]), 0, 20);
 	if ($medewerker) {
 		if ($medewerker["password"] == $pw) {
-			$data->bid = $medewerker["bid"];
-			$data->mid = $medewerker["email"];
-			$data->lev = $medewerker["level"];
-			$data->email = $_POST["email"];
-			$data->password = $_POST["password"];
+			$data->results->bid = $medewerker["bid"];
+			$data->results->mid = $medewerker["email"];
+			$data->results->lev = $medewerker["level"];
+			$data->results->email = $_POST["email"];
+			$data->results->password = $_POST["password"];
 		} else {
-			$data->error = "Uw wachtwoord is onjuist.\n";
+			$data->errors->password = "error_invalid_password";
 		}
 	} else {
-		$data->error = "Dit E-mailadres is onbekend.\n";
+		$data->errors->email = "error_invalid_email";
 	}
 }
 echo json_encode($data);

@@ -26,15 +26,16 @@ import nl.orsit.menu.ListTouchListener;
 import nl.orsit.menu.ListAdapter;
 import nl.orsit.menu.ListItem;
 import nl.orsit.menu.MenuActivity;
+import nl.orsit.menu.MenuDataInterface;
 import nl.orsit.menu.R;
+import nl.orsit.menu.klanten.KlantItem;
 
 public class ObjectenFragment extends SpinnerFragment implements ServiceCallback {
 
     protected RecyclerView mRecyclerView;
-    protected TextInputEditText mSearchView;
-    protected ListAdapter mAdapter;
+    protected ObjectAdapter mAdapter;
     protected RecyclerView.LayoutManager mLayoutManager;
-    protected List<ListItem> mDataset;
+    protected List<ObjectItem> mDataset;
     private BackendServiceCall mTask;
     private View rootView;
 
@@ -56,8 +57,9 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
                         String kid = mDataset.get(position).getKey();
                         savePreference(kid);
                         System.out.println("short:" + mDataset.get(position).getKey());
-                        Intent intent = new Intent(getActivity(), MenuActivity.class);
-                        startActivity(intent);
+                        MenuDataInterface activity = (MenuDataInterface) getActivity();
+                        activity.userDataChanged(MenuDataInterface.CHANGED.OBJ);
+                        activity.tabLogs();
                     }
 
                     @Override public void onLongItemClick(View view, int position) {
@@ -77,7 +79,7 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
         );
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new ListAdapter(mDataset, R.layout.list_item_object, R.id.listItemObjectTextView);
+        mAdapter = new ObjectAdapter(mDataset);
         mRecyclerView.setAdapter(mAdapter);
         return rootView;
     }
@@ -87,14 +89,16 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
      * Generates Strings for RecyclerView's adapter. This data would usually come
      * from a local content provider or remote server.
      */
-    private void loadDataset() {
-        SharedPreferences prefs = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE);
-        PhpParams params = new PhpParams();
-        params.add("bid", prefs.getString("bid", ""));
-        params.add("kid", prefs.getString("kid", ""));
-        this.mTask = new BackendServiceCall(this, "javaGetObjecten", "default", params);
-        this.mTask.execute();
-        mDataset = new ArrayList<>();
+    public void loadDataset() {
+        if (getActivity() != null) {
+            SharedPreferences prefs = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE);
+            PhpParams params = new PhpParams();
+            params.add("bid", prefs.getString("bid", ""));
+            params.add("kid", prefs.getString("kid", ""));
+            this.mTask = new BackendServiceCall(this, "javaGetObjecten", "default", params);
+            this.mTask.execute();
+            mDataset = new ArrayList<>();
+        }
     }
 
     @Override
@@ -113,15 +117,8 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
             mDataset = new ArrayList<>();
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
-                boolean hasSerienr = obj.getString("serienr").length() != 0;
-                String object = obj.getString("omschr") + "\n" +
-                        obj.getString("merk") + " / " + obj.getString("type") + "\n";
-                if (hasSerienr) {
-                    object += obj.getString("serienr") + " ";
-                }
-                mDataset.add(new ListItem(obj.getString("qr"), object));
+                mDataset.add(new ObjectItem(obj.getString("qr"), obj));
             }
-            System.out.println("Data found: " + mDataset.size());
             mAdapter.setDataSet(mDataset);
             mAdapter.notifyDataSetChanged();
         } catch (JSONException e) {

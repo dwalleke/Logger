@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#444</color>
     <color name="colorAccent">#0cf</color>
     <color name="colorBrightGreen">#0f0</color>
+    <color name="colorRowOdd">#c6f4ff</color>
+    <color name="colorRowEven">#f7fdff</color>
 </resources>

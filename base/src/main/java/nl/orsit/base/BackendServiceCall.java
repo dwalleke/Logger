@@ -33,7 +33,7 @@ public class BackendServiceCall extends AsyncTask<Void, Void, Void> {
             OkHttpClient client = new OkHttpClient();
             FormBody.Builder formBodyBuilder = new FormBody.Builder();
             Iterator<Map.Entry<String, String>> it = params.entrySet().iterator();
-            System.out.println("firing request");
+            System.out.println("firing request: " + phpScript);
 
             while (it.hasNext()) {
                 Map.Entry<String, String> entry = it.next();

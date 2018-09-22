@@ -8,72 +8,16 @@
     android:fitsSystemWindows="true"
     tools:context=".MenuActivity">
 
-    <ProgressBar
-        android:id="@+id/menu_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />
-
-
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="0dp">
 
-        <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <FrameLayout
+            android:id="@+id/menu_content_fragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/colorAccent"
-            android:stretchColumns="*">
-            <!-- first row of the table layout-->
-            <TableRow
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:id="@+id/menuBedrijf"
-                    android:text="@string/menuBedrijf"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="2dp"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="14dp"
-                    />
-                <TextView
-                    android:id="@+id/menuMedewerker"
-                    android:text="@string/menuMedewerker"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="2dp"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="14dp"
-                    />
-            </TableRow>
-            <TableRow
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:id="@+id/menuKlant"
-                    android:text="@string/menuKlant"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="2dp"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="14dp"
-                    />
-                <TextView
-                    android:id="@+id/menuObject"
-                    android:text="@string/menuObject"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="2dp"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="14dp"
-                    />
-            </TableRow>
-        </TableLayout>
+            android:layout_height="match_parent" />
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"

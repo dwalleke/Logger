@@ -35,10 +35,12 @@ public class LogsFragment extends SpinnerFragment implements ServiceCallback {
     protected List<ListItem> mDataset;
     private BackendServiceCall mTask;
     private View rootView;
+    private LogTypes logTypes;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        logTypes = new LogTypes();
         loadDataset();
     }
 
@@ -83,15 +85,17 @@ public class LogsFragment extends SpinnerFragment implements ServiceCallback {
      * Generates Strings for RecyclerView's adapter. This data would usually come
      * from a local content provider or remote server.
      */
-    private void loadDataset() {
-        SharedPreferences prefs = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE);
-        PhpParams params = new PhpParams();
-        params.add("bid", prefs.getString("bid", ""));
-        params.add("kid", prefs.getString("kid", ""));
-        params.add("obj", prefs.getString("obj", ""));
-        this.mTask = new BackendServiceCall(this, "javaGetLogs", "default", params);
-        this.mTask.execute();
-        mDataset = new ArrayList<>();
+    public void loadDataset() {
+        if (getActivity() != null) {
+            SharedPreferences prefs = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE);
+            PhpParams params = new PhpParams();
+            params.add("bid", prefs.getString("bid", ""));
+            params.add("kid", prefs.getString("kid", ""));
+            params.add("obj", prefs.getString("obj", ""));
+            this.mTask = new BackendServiceCall(this, "javaGetLogs", "default", params);
+            this.mTask.execute();
+            mDataset = new ArrayList<>();
+        }
     }
 
     @Override
@@ -110,6 +114,7 @@ public class LogsFragment extends SpinnerFragment implements ServiceCallback {
             mDataset = new ArrayList<>();
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
+
                 System.out.println("finish: " + obj.toString());
 
 //                mDataset.add(new ListItem(obj.getString("kid"), klant));

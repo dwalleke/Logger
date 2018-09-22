@@ -32,7 +32,7 @@ if (!hasValue("kid", $_POST)) {
 	$data->errors->kid = "Geen klant geselecteerd.\n";
 }
 if (!hasValue("obj", $_POST)) {
-	$data->errors->kid = "Geen object geselecteerd.\n";
+	$data->errors->obj = "Geen object geselecteerd.\n";
 }
 if (count($data->errors) != 0) {
 	$bid = $_POST["bid"];

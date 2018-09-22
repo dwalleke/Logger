@@ -146,7 +146,23 @@ function getLogsByQr($db, $qr) {
 }
 // javaGetLogs
 function getAllMasterInvoer($db) {
-	$s = $db->prepare("select * from master_invoer order by id");
+	$s = $db->prepare("select * from master_invoer");
+	$s->execute();
+	return $s->fetchAll(PDO::FETCH_ASSOC);
+}
+function getAllMasterStatus($db) {
+	$s = $db->prepare("select * from master_status");
+	$s->execute();
+	return $s->fetchAll(PDO::FETCH_ASSOC);
+}
+function getAllMasterType($db) {
+	$s = $db->prepare("select * from master_type");
+	$s->execute();
+	return $s->fetchAll(PDO::FETCH_ASSOC);
+}
+function getAllUserActief($db, $bid) {
+	$s = $db->prepare("select * from users_actief where bedrijf = :bid");
+	$s->bindValue(":bid", $bid);
 	$s->execute();
 	return $s->fetchAll(PDO::FETCH_ASSOC);
 }

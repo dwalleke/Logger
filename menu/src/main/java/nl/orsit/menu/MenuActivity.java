@@ -8,8 +8,10 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import android.widget.TextView;
@@ -19,13 +21,13 @@ import nl.orsit.base.PhpParams;
 import nl.orsit.base.PhpResult;
 import nl.orsit.base.ServiceCallback;
 import nl.orsit.base.SpinnerActivity;
+import nl.orsit.menu.data.MenuDataFragment;
 import nl.orsit.menu.klanten.KlantenFragment;
 import nl.orsit.menu.logs.LogsFragment;
 import nl.orsit.menu.objecten.ObjectenFragment;
 
-public class MenuActivity extends SpinnerActivity implements ServiceCallback {
+public class MenuActivity extends AppCompatActivity implements MenuDataInterface {
 
-    private BackendServiceCall mMenuTask;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -41,27 +43,43 @@ public class MenuActivity extends SpinnerActivity implements ServiceCallback {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    private MenuDataFragment menuDataFragment;
+    private KlantenFragment klantenFragment;
+    private ObjectenFragment objectenFragment;
+    private LogsFragment logsFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-        reloadUserData();
+        // Make our menu data fragment
+        if (savedInstanceState == null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            menuDataFragment = new MenuDataFragment();
+            menuDataFragment.loadDataset(CHANGED.BID);
+            transaction.replace(R.id.menu_content_fragment, menuDataFragment);
+            transaction.commit();
+        }
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
+        this.klantenFragment = new KlantenFragment();
+        this.objectenFragment = new ObjectenFragment();
+        this.logsFragment = new LogsFragment();
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        // create the three tabs
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
+        // the scan button
         FloatingActionButton scan = (FloatingActionButton) findViewById(R.id.scan);
         scan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,6 +89,7 @@ public class MenuActivity extends SpinnerActivity implements ServiceCallback {
             }
         });
 
+        // the add button (does something different for each page (klantAdd, objectAdd, logAdd)
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.add);
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,45 +102,33 @@ public class MenuActivity extends SpinnerActivity implements ServiceCallback {
     }
 
     @Override
-    public View getProgressView() {
-        return findViewById(R.id.menu_progress);
+    public void userDataChanged(CHANGED arg) {
+        switch (arg) {
+            case KID:
+                objectenFragment.loadDataset();
+                logsFragment.loadDataset();
+                break;
+            case OBJ:
+                logsFragment.loadDataset();
+        }
+        menuDataFragment.loadDataset(arg);
     }
 
     @Override
-    public View getParentView() {
-        return findViewById(R.id.appbar);
-    }
-
-    private void reloadUserData() {
-        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
-        PhpParams params = new PhpParams();
-        params.add("bid", prefs.getString("bid", ""));
-        params.add("mid", prefs.getString("mid", ""));
-        params.add("kid", prefs.getString("kid", ""));
-        params.add("obj", prefs.getString("obj", ""));
-        this.mMenuTask = new BackendServiceCall(this, "javaData", "default", params);
-        this.mMenuTask.execute();
+    public void tabKlanten() {
+        mViewPager.setCurrentItem(0);
     }
 
     @Override
-    public void cancel(PhpResult phpResult) {
-        this.mMenuTask = null;
-        showProgress(false);
+    public void tabObjecten() {
+        mViewPager.setCurrentItem(1);
     }
 
     @Override
-    public void finish(PhpResult phpResult) {
-        this.mMenuTask = null;
-        showProgress(false);
-        TextView bedrijf = (TextView) findViewById(R.id.menuBedrijf);
-        bedrijf.setText(phpResult.getResults().get("bedrijf"));
-        TextView medewerker = (TextView) findViewById(R.id.menuMedewerker);
-        medewerker.setText(phpResult.getResults().get("medewerker"));
-        TextView klant = (TextView) findViewById(R.id.menuKlant);
-        klant.setText(phpResult.getResults().get("listItemObject"));
-        TextView object = (TextView) findViewById(R.id.menuObject);
-        object.setText(phpResult.getResults().get("object"));
+    public void tabLogs() {
+        mViewPager.setCurrentItem(2);
     }
+
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -129,23 +136,16 @@ public class MenuActivity extends SpinnerActivity implements ServiceCallback {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        private KlantenFragment klantenFragment;
-        private ObjectenFragment objectenFragment;
-        private LogsFragment logsFragment;
-
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
-            this.klantenFragment = new KlantenFragment();
-            this.objectenFragment = new ObjectenFragment();
-            this.logsFragment = new LogsFragment();
         }
 
         @Override
         public Fragment getItem(int position) {
             switch(position) {
-                case 0: return this.klantenFragment;
-                case 1: return this.objectenFragment;
-                default: return this.logsFragment;
+                case 0: return klantenFragment;
+                case 1: return objectenFragment;
+                default: return logsFragment;
             }
         }
 

@@ -331,14 +331,27 @@ public class LogsFragment extends SpinnerFragment implements ServiceCallback {
     private void prepareFooter(View alertView, final AlertDialog alertDialog, boolean viewOnly) {
         TableLayout footer = (TableLayout) alertView.findViewById(R.id.logFooter);
         TableRow row = new TableRow(getContext());
-        Button sluiten = createCleanButton("sluiten");
-        sluiten.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
-        row.addView(sluiten);
+        if (!viewOnly) {
+            Button toevoegen = createCleanButton("toevoegen");
+            Button annuleren = createCleanButton("annuleren");
+            annuleren.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alertDialog.dismiss();
+                }
+            });
+            row.addView(toevoegen);
+            row.addView(annuleren);
+        } else {
+            Button annuleren = createCleanButton("sluiten");
+            annuleren.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alertDialog.dismiss();
+                }
+            });
+            row.addView(annuleren);
+        }
         footer.addView(row);
 
     }

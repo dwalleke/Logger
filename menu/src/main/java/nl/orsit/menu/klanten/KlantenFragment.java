@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -54,15 +55,12 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.klanten, container, false);
-
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.klantenRecycleView);
         mRecyclerView.addOnItemTouchListener(
                 new ListTouchListener(getActivity(), mRecyclerView ,new ListTouchListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         String kid = mDataset.get(position).getKey();
-                        System.out.println("Klant gekozen: " + kid);
                         savePreference(kid);
-                        System.out.println("short:" + mDataset.get(position).getKey());
                         MenuDataInterface activity = (MenuDataInterface) getActivity();
                         activity.userDataChanged(MenuDataInterface.CHANGED.KID);
                         activity.tabObjecten();
@@ -71,8 +69,7 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
                     @Override public void onLongItemClick(View view, int position) {
                         String kid = mDataset.get(position).getKey();
                         savePreference(kid);
-                        System.out.println("long:" + mDataset.get(position).getKey());
-                        // do whatever
+                        // TODO doing
                     }
 
                     private void savePreference(String kid) {
@@ -93,6 +90,15 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
                 return false;
             }
         });
+        Button button = (Button) rootView.findViewById(R.id.zoekKlantButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadDataset();
+            }
+        });
+
+
 
 
         mLayoutManager = new LinearLayoutManager(getActivity());

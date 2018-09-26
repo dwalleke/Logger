@@ -20,27 +20,25 @@
             android:layout_height="match_parent" />
 
         <android.support.design.widget.TabLayout
+            style="@style/MenuTabLayout"
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <android.support.design.widget.TabItem
-                android:id="@+id/tabItem"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/tabKlanten" />
+                android:text="@string/tabKid" />
 
             <android.support.design.widget.TabItem
-                android:id="@+id/tabItem2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/tabObjecten" />
+                android:text="@string/tabObj" />
 
             <android.support.design.widget.TabItem
-                android:id="@+id/tabItem3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/tabLogs" />
+                android:text="@string/tabLog" />
 
         </android.support.design.widget.TabLayout>
     </android.support.design.widget.AppBarLayout>
@@ -56,7 +54,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start|bottom"
-        android:backgroundTint="@color/colorBrightGreen"
+        android:backgroundTint="@color/brightGreen"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/scan" />
 

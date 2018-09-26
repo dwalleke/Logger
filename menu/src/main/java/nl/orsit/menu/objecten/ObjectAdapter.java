@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import java.util.List;
@@ -48,6 +49,15 @@ public class ObjectAdapter extends RecyclerView.Adapter<ObjectAdapter.ViewHolder
         // Create a new view.
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.list_item_object, viewGroup, false);
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        View links = v.findViewById(R.id.objectOmschrijving);
+        View rechts = v.findViewById(R.id.objectMerkType);
+        ViewGroup.LayoutParams lpLinks = links.getLayoutParams();
+        lpLinks.width = lp.width / 2;
+        ViewGroup.LayoutParams lpRechts = rechts.getLayoutParams();
+        lpRechts.width = lp.width / 2;
+        links.setLayoutParams(lpLinks);
+        rechts.setLayoutParams(lpRechts);
         return new ViewHolder(v);
     }
 
@@ -56,6 +66,13 @@ public class ObjectAdapter extends RecyclerView.Adapter<ObjectAdapter.ViewHolder
         ObjectItem item = mDataSet.get(position);
         viewHolder.getOmschrijving().setText(item.getSoort());
         viewHolder.getMerkType().setText(item.getMerk() + " / " + item.getType());
+        if (position % 2 == 1) {
+            viewHolder.itemView.setBackgroundResource(R.color.rowEven);
+
+        } else {
+            viewHolder.itemView.setBackgroundResource(R.color.rowOdd);
+        }
+
     }
 
     @Override

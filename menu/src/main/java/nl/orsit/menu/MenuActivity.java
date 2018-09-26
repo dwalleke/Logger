@@ -14,13 +14,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import android.widget.TextView;
-
-import nl.orsit.base.BackendServiceCall;
-import nl.orsit.base.PhpParams;
-import nl.orsit.base.PhpResult;
-import nl.orsit.base.ServiceCallback;
-import nl.orsit.base.SpinnerActivity;
+import nl.orsit.menu.data.LogTypes;
 import nl.orsit.menu.data.MenuDataFragment;
 import nl.orsit.menu.klanten.KlantenFragment;
 import nl.orsit.menu.logs.LogsFragment;
@@ -47,6 +41,7 @@ public class MenuActivity extends AppCompatActivity implements MenuDataInterface
     private KlantenFragment klantenFragment;
     private ObjectenFragment objectenFragment;
     private LogsFragment logsFragment;
+    private LogTypes logTypes = null;
 
 
     @Override
@@ -62,6 +57,8 @@ public class MenuActivity extends AppCompatActivity implements MenuDataInterface
             transaction.replace(R.id.menu_content_fragment, menuDataFragment);
             transaction.commit();
         }
+        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+        logTypes = new LogTypes(prefs.getString("bid", ""));
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -79,7 +76,7 @@ public class MenuActivity extends AppCompatActivity implements MenuDataInterface
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        // the scan button
+        // the scan roundedButton
         FloatingActionButton scan = (FloatingActionButton) findViewById(R.id.scan);
         scan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,7 +86,7 @@ public class MenuActivity extends AppCompatActivity implements MenuDataInterface
             }
         });
 
-        // the add button (does something different for each page (klantAdd, objectAdd, logAdd)
+        // the add roundedButton (does something different for each page (klantAdd, objectAdd, logAdd)
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.add);
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,6 +125,9 @@ public class MenuActivity extends AppCompatActivity implements MenuDataInterface
     public void tabLogs() {
         mViewPager.setCurrentItem(2);
     }
+
+    @Override
+    public LogTypes getLogTypes() { return this.logTypes; }
 
 
     /**

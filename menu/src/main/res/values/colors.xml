@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="rowEven">@color/inverse</color>
+    <color name="rowOdd">@color/inverseDark</color>
+    <color name="ok">@color/brightGreen</color>
+    <color name="nok">@color/brightRed</color>
+</resources>

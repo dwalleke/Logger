@@ -54,24 +54,25 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
         mRecyclerView.addOnItemTouchListener(
                 new ListTouchListener(getActivity(), mRecyclerView ,new ListTouchListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        String kid = mDataset.get(position).getKey();
-                        savePreference(kid);
-                        System.out.println("short:" + mDataset.get(position).getKey());
+                        String obj = mDataset.get(position).getKey();
+                        String type = mDataset.get(position).getType();
+                        savePreference(obj, type);
                         MenuDataInterface activity = (MenuDataInterface) getActivity();
                         activity.userDataChanged(MenuDataInterface.CHANGED.OBJ);
                         activity.tabLogs();
                     }
 
                     @Override public void onLongItemClick(View view, int position) {
-                        String kid = mDataset.get(position).getKey();
-                        savePreference(kid);
-                        System.out.println("long:" + mDataset.get(position).getKey());
-                        // do whatever
+                        String obj = mDataset.get(position).getKey();
+                        String type = mDataset.get(position).getType();
+                        savePreference(obj, type);
+                        // TODO long click
                     }
 
-                    private void savePreference(String obj) {
+                    private void savePreference(String obj, String type) {
                         SharedPreferences.Editor editor = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE).edit();
                         editor.putString("obj", obj);
+                        editor.putString("obj_type", type);
                         editor.apply();
 
                     }
@@ -91,6 +92,10 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
      */
     public void loadDataset() {
         if (getActivity() != null) {
+            if(mAdapter != null) {
+                mAdapter.setDataSet(new ArrayList<ObjectItem>());
+                mAdapter.notifyDataSetChanged();
+            }
             SharedPreferences prefs = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE);
             PhpParams params = new PhpParams();
             params.add("bid", prefs.getString("bid", ""));

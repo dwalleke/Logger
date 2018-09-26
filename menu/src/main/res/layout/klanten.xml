@@ -23,8 +23,8 @@
 
     <android.support.design.widget.TextInputLayout
         android:layout_marginTop="5dp"
-        android:background="@drawable/input"
         android:layout_width="match_parent"
+        android:layout_marginBottom="5dp"
         android:layout_height="wrap_content">
 
         <android.support.design.widget.TextInputEditText
@@ -37,6 +37,15 @@
             android:singleLine="true" />
 
     </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/zoekKlantButton"
+        android:background="@drawable/rounded_button_shape"
+        android:layout_marginBottom="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/inverse"
+        android:text="@string/zoekButton"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/klantenRecycleView"

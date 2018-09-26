@@ -38,7 +38,6 @@ public class BackendServiceCall extends AsyncTask<Void, Void, Void> {
             while (it.hasNext()) {
                 Map.Entry<String, String> entry = it.next();
                 formBodyBuilder.add(entry.getKey(), entry.getValue());
-                System.out.println("values[" + entry.getKey() + "]: " + entry.getValue());
             }
             Request request = new Request.Builder()
                     .url("http://www.dwaal.dds.nl/acpt/app/pages/"+phpScript+".php")

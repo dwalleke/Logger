@@ -1,5 +1,6 @@
 package nl.orsit.menu;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -90,9 +91,18 @@ public class MenuActivity extends AppCompatActivity implements MenuDataInterface
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.add);
         add.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onClick(View v) {
+                SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+                Intent intent = null;
+                switch(prefs.getInt("tab", 0)) {
+                    case 0:
+//                        intent = new Intent(v.getContext(), KlantActivity.class);
+                        break;
+                }
+                if (intent != null) {
+                    startActivity(intent);
+                }
+
             }
         });
 
@@ -142,6 +152,9 @@ public class MenuActivity extends AppCompatActivity implements MenuDataInterface
 
         @Override
         public Fragment getItem(int position) {
+            SharedPreferences.Editor editor = getSharedPreferences("UserData", MODE_PRIVATE).edit();
+            editor.putInt("tab", position);
+            editor.apply();
             switch(position) {
                 case 0: return klantenFragment;
                 case 1: return objectenFragment;

@@ -1,9 +1,7 @@
 package nl.orsit.menu.objecten;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.TextInputEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -23,17 +21,13 @@ import nl.orsit.base.PhpResult;
 import nl.orsit.base.ServiceCallback;
 import nl.orsit.base.SpinnerFragment;
 import nl.orsit.menu.ListTouchListener;
-import nl.orsit.menu.ListAdapter;
-import nl.orsit.menu.ListItem;
-import nl.orsit.menu.MenuActivity;
 import nl.orsit.menu.MenuDataInterface;
 import nl.orsit.menu.R;
-import nl.orsit.menu.klanten.KlantItem;
 
 public class ObjectenFragment extends SpinnerFragment implements ServiceCallback {
 
     protected RecyclerView mRecyclerView;
-    protected ObjectAdapter mAdapter;
+    protected ObjectenAdapter mAdapter;
     protected RecyclerView.LayoutManager mLayoutManager;
     protected List<ObjectItem> mDataset;
     private BackendServiceCall mTask;
@@ -80,7 +74,7 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
         );
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new ObjectAdapter(mDataset);
+        mAdapter = new ObjectenAdapter(mDataset);
         mRecyclerView.setAdapter(mAdapter);
         return rootView;
     }
@@ -133,11 +127,14 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
 
     @Override
     public View getProgressView() {
-        return rootView.findViewById(R.id.object_progress);
+        return rootView.findViewById(R.id.objecten_progress);
     }
 
     @Override
     public View getParentView() {
         return rootView;
+    }
+
+    public void showObject() {
     }
 }

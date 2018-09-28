@@ -161,4 +161,7 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
     public View getParentView() {
         return rootView;
     }
+
+    public void showKlant() {
+    }
 }

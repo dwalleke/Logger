@@ -407,4 +407,6 @@ public class LogsFragment extends SpinnerFragment implements ServiceCallback {
     }
 
 
+    public void showLog() {
+    }
 }

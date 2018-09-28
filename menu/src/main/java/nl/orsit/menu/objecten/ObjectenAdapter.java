@@ -10,12 +10,11 @@ import android.widget.TextView;
 import java.util.List;
 
 import nl.orsit.menu.R;
-import nl.orsit.menu.klanten.KlantItem;
 
 /**
  * Provide views to RecyclerView with data from mDataSet.
  */
-public class ObjectAdapter extends RecyclerView.Adapter<ObjectAdapter.ViewHolder> {
+public class ObjectenAdapter extends RecyclerView.Adapter<ObjectenAdapter.ViewHolder> {
     private List<ObjectItem> mDataSet;
 
     public void setDataSet(List<ObjectItem> dataSet) {
@@ -38,7 +37,7 @@ public class ObjectAdapter extends RecyclerView.Adapter<ObjectAdapter.ViewHolder
 
     }
 
-    public ObjectAdapter(List<ObjectItem> dataSet) {
+    public ObjectenAdapter(List<ObjectItem> dataSet) {
         mDataSet = dataSet;
     }
 

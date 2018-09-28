@@ -1,6 +1,5 @@
 package nl.orsit.menu;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -34,9 +33,6 @@ public class MenuActivity extends AppCompatActivity implements MenuDataInterface
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private ViewPager mViewPager;
     private MenuDataFragment menuDataFragment;
     private KlantenFragment klantenFragment;
@@ -75,6 +71,28 @@ public class MenuActivity extends AppCompatActivity implements MenuDataInterface
         // create the three tabs
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+                // Not interested
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                savePreference(i);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+                // not interested
+            }
+            private void savePreference(int position) {
+                SharedPreferences.Editor editor = getSharedPreferences("UserData", MODE_PRIVATE).edit();
+                editor.putInt("tab", position);
+                editor.apply();
+            }
+        });
+
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
         // the scan roundedButton
@@ -93,16 +111,18 @@ public class MenuActivity extends AppCompatActivity implements MenuDataInterface
             @Override
             public void onClick(View v) {
                 SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
-                Intent intent = null;
-                switch(prefs.getInt("tab", 0)) {
+                int tab = prefs.getInt("tab", 0);
+                switch(tab) {
                     case 0:
-//                        intent = new Intent(v.getContext(), KlantActivity.class);
+                        klantenFragment.showKlant();
+                        break;
+                    case 1:
+                        objectenFragment.showObject();
+                        break;
+                    case 2:
+                        logsFragment.showLog();
                         break;
                 }
-                if (intent != null) {
-                    startActivity(intent);
-                }
-
             }
         });
 
@@ -152,9 +172,7 @@ public class MenuActivity extends AppCompatActivity implements MenuDataInterface
 
         @Override
         public Fragment getItem(int position) {
-            SharedPreferences.Editor editor = getSharedPreferences("UserData", MODE_PRIVATE).edit();
-            editor.putInt("tab", position);
-            editor.apply();
+            System.out.println("Setting position from viewPagerAdapter: " + position);
             switch(position) {
                 case 0: return klantenFragment;
                 case 1: return objectenFragment;

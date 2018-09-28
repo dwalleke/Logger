@@ -12,7 +12,7 @@
     tools:context=".objecten.ObjectenFragment">
 
     <ProgressBar
-        android:id="@+id/object_progress"
+        android:id="@+id/objecten_progress"
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

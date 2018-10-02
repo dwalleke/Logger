@@ -1,10 +1,8 @@
 package nl.orsit.menu.klanten;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
@@ -26,16 +24,12 @@ import nl.orsit.base.BackendServiceCall;
 import nl.orsit.base.PhpParams;
 import nl.orsit.base.PhpResult;
 import nl.orsit.base.ServiceCallback;
-import nl.orsit.base.SpinnerFragment;
+import nl.orsit.base.TabFragment;
 import nl.orsit.menu.ListTouchListener;
-import nl.orsit.menu.ListAdapter;
-import nl.orsit.menu.ListItem;
-import nl.orsit.menu.MenuActivity;
 import nl.orsit.menu.MenuDataInterface;
 import nl.orsit.menu.R;
-import nl.orsit.menu.data.MenuDataFragment;
 
-public class KlantenFragment extends SpinnerFragment implements ServiceCallback {
+public class KlantenFragment extends TabFragment implements ServiceCallback {
 
     protected RecyclerView mRecyclerView;
     protected TextInputEditText mSearchView;
@@ -69,7 +63,7 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
                     @Override public void onLongItemClick(View view, int position) {
                         String kid = mDataset.get(position).getKey();
                         savePreference(kid);
-                        // TODO doing
+                        editKlant();
                     }
 
                     private void savePreference(String kid) {
@@ -162,6 +156,17 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
         return rootView;
     }
 
-    public void showKlant() {
+    public void addKlant() {
+
+
+    }
+
+    public void editKlant() {
+
+    }
+
+    @Override
+    protected void action() {
+
     }
 }

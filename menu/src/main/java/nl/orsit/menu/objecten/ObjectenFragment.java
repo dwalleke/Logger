@@ -19,12 +19,12 @@ import nl.orsit.base.BackendServiceCall;
 import nl.orsit.base.PhpParams;
 import nl.orsit.base.PhpResult;
 import nl.orsit.base.ServiceCallback;
-import nl.orsit.base.SpinnerFragment;
+import nl.orsit.base.TabFragment;
 import nl.orsit.menu.ListTouchListener;
 import nl.orsit.menu.MenuDataInterface;
 import nl.orsit.menu.R;
 
-public class ObjectenFragment extends SpinnerFragment implements ServiceCallback {
+public class ObjectenFragment extends TabFragment implements ServiceCallback {
 
     protected RecyclerView mRecyclerView;
     protected ObjectenAdapter mAdapter;
@@ -49,8 +49,8 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
                 new ListTouchListener(getActivity(), mRecyclerView ,new ListTouchListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         String obj = mDataset.get(position).getKey();
-                        String type = mDataset.get(position).getType();
-                        savePreference(obj, type);
+                        String soort = mDataset.get(position).getSoort();
+                        savePreference(obj, soort);
                         MenuDataInterface activity = (MenuDataInterface) getActivity();
                         activity.userDataChanged(MenuDataInterface.CHANGED.OBJ);
                         activity.tabLogs();
@@ -66,10 +66,12 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
                     private void savePreference(String obj, String type) {
                         SharedPreferences.Editor editor = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE).edit();
                         editor.putString("obj", obj);
-                        editor.putString("obj_type", type);
+                        editor.putString("obj_soort", type);
+                        System.out.println("SETTING SOORT: " + obj + " - " + type);
                         editor.apply();
 
                     }
+
                 })
         );
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -116,7 +118,7 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
             mDataset = new ArrayList<>();
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
-                mDataset.add(new ObjectItem(obj.getString("qr"), obj));
+                mDataset.add(new ObjectItem(((MenuDataInterface)getActivity()).getLogTypes(), obj));
             }
             mAdapter.setDataSet(mDataset);
             mAdapter.notifyDataSetChanged();
@@ -135,6 +137,11 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
         return rootView;
     }
 
-    public void showObject() {
+    public void addObject() {
+    }
+
+    @Override
+    protected void action() {
+
     }
 }

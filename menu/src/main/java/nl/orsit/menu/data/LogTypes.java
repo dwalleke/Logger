@@ -162,4 +162,13 @@ public class LogTypes implements ServiceCallback {
         }
         return null;
     }
+
+    public MasterType getUserType(String id) {
+        for (MasterType mt : this.getUserTypeList()) {
+            if (mt.getId().equals(id)) {
+                return mt;
+            }
+        }
+        return null;
+    }
 }

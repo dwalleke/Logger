@@ -3,19 +3,24 @@ package nl.orsit.menu.objecten;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ObjectItem {
-    final private String key;
+import nl.orsit.menu.data.LogTypes;
 
+public class ObjectItem {
+    private String key;
     private String soort;
+    private String code;
     private String merk;
     private String type;
     private String serienr;
+    private LogTypes logTypes;
 
 
-    public ObjectItem(String key, JSONObject value) {
-        this.key = key;
+    public ObjectItem(LogTypes logTypes, JSONObject value) {
+        this.logTypes = logTypes;
         try {
-            this.soort = value.getString("omschr");
+            this.key = value.getString("qr");
+            this.code = value.getString("code");
+            this.soort = value.getString("soort");
             this.merk = value.getString("merk");
             this.type = value.getString("type");
             this.serienr = value.getString("serienr");
@@ -23,6 +28,12 @@ public class ObjectItem {
             e.printStackTrace();
         }
     }
+
+    public String getOmschrijving() {
+        return logTypes.getUserType(this.soort).getOmschrijving();
+    }
+
+    public String getCode() { return key; }
 
     public String getKey() { return key; }
 

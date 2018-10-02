@@ -63,7 +63,7 @@ public class ObjectenAdapter extends RecyclerView.Adapter<ObjectenAdapter.ViewHo
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         ObjectItem item = mDataSet.get(position);
-        viewHolder.getOmschrijving().setText(item.getSoort());
+        viewHolder.getOmschrijving().setText(item.getOmschrijving());
         viewHolder.getMerkType().setText(item.getMerk() + " / " + item.getType());
         if (position % 2 == 1) {
             viewHolder.itemView.setBackgroundResource(R.color.rowEven);

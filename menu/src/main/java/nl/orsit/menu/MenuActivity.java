@@ -114,13 +114,13 @@ public class MenuActivity extends AppCompatActivity implements MenuDataInterface
                 int tab = prefs.getInt("tab", 0);
                 switch(tab) {
                     case 0:
-                        klantenFragment.showKlant();
+                        klantenFragment.addKlant();
                         break;
                     case 1:
-                        objectenFragment.showObject();
+                        objectenFragment.addObject();
                         break;
                     case 2:
-                        logsFragment.showLog();
+                        logsFragment.addLog();
                         break;
                 }
             }

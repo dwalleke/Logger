@@ -1,6 +1,5 @@
 package nl.orsit.menu.logs;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,7 +11,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import nl.orsit.menu.MenuDataInterface;
 import nl.orsit.menu.data.LogTypes;
 
 public class LogItem {
@@ -23,11 +21,28 @@ public class LogItem {
     private String type;
     private boolean checked;
     private Map<String, LogItemType> logs;
-    private MenuDataInterface parent;
+    private LogTypes logTypes;
 
+    public LogItem(LogTypes logTypes) {
+        this.logTypes = logTypes;
+        this.logs = new HashMap<>();
+        this.datum = new Date();
+        this.key = null;
+        this.status = null;
+        this.type = null;
+        this.checked = false;
+    }
 
-    public LogItem(JSONObject value, MenuDataInterface parent) {
-        this.parent = parent;
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LogItem(JSONObject value, LogTypes logTypes) {
+        this(logTypes);
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         String datumString = null;
         this.logs = new HashMap<>();
@@ -43,7 +58,7 @@ public class LogItem {
             while (it.hasNext()) {
                 String j = it.next();
                 String val = loglist.getString(j);
-                this.logs.put(j, new LogItemType(j, val, parent));
+                this.logs.put(j, new LogItemType(j, val, this.logTypes));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -53,7 +68,7 @@ public class LogItem {
     }
 
     public LogTypes getLogTypes() {
-        return this.parent.getLogTypes();
+        return this.logTypes;
     }
 
     public String getKey() { return key; }

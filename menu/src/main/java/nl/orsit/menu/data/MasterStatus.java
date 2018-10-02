@@ -11,6 +11,10 @@ public class MasterStatus {
     private String masterType = "";
     private String omschrijving = "";
 
+    public MasterStatus(String omschrijving) {
+        this.omschrijving = omschrijving;
+    }
+
     public MasterStatus(JSONObject arg) {
 
         try {
@@ -33,5 +37,22 @@ public class MasterStatus {
     public String getOmschrijving() {
         return omschrijving;
     }
+
+
+    //to display object as a string in spinner
+    @Override
+    public String toString() {
+        return omschrijving;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof MasterStatus){
+            MasterStatus c = (MasterStatus)obj;
+            if(c.getId()==id ) return true;
+        }
+        return false;
+    }
+
 
 }

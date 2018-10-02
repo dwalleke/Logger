@@ -3,10 +3,19 @@ package nl.orsit.base;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ScrollView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+
+import nl.orsit.logger.R;
 
 abstract public class SpinnerFragment extends Fragment {
 
@@ -48,6 +57,7 @@ abstract public class SpinnerFragment extends Fragment {
             getParentView().setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
+
 
 
 }

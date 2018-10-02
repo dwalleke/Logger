@@ -3,6 +3,7 @@ package nl.orsit.menu.logs;
 import org.json.JSONObject;
 
 import nl.orsit.menu.MenuDataInterface;
+import nl.orsit.menu.data.LogTypes;
 
 public class LogItemType {
 
@@ -11,10 +12,10 @@ public class LogItemType {
     private String id;
     private String val;
 
-    public LogItemType(String j, String val, MenuDataInterface parent) {
+    public LogItemType(String j, String val, LogTypes logTypes) {
         this.id = j;
         this.val = val;
-        this.type = parent.getLogTypes().getLogType(j);
+        this.type = logTypes.getLogType(j);
     }
 
 

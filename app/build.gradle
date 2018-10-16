@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
 
     defaultConfig {
-        applicationId "com.penbtechniek.orsit"
+        applicationId "com.penbtechniek.orsit.release"
         versionCode 100
         versionName "2.0"
         minSdkVersion 23

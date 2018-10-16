@@ -1,8 +1,8 @@
-package nl.orsit.menu.zoom.graphics;
+package nl.orsit.menu.util.zoom.graphics;
 
 import android.graphics.Bitmap;
 
-import nl.orsit.menu.zoom.ImageViewTouchBase;
+import nl.orsit.menu.util.zoom.ImageViewTouchBase;
 
 /**
  * Base interface used in the {@link ImageViewTouchBase} view

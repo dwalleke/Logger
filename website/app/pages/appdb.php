@@ -91,7 +91,7 @@ function updateKlant($db, $bid, $values) {
 
 // javaGetObjecten
 function getObjecten($db, $bid, $kid) {
-	$select = "select q.qr,q.merk,q.type,q.klant,q.serienr,m.omschr,k.naam,";
+	$select = "select q.*,m.omschr,k.naam,";
 	$select .= "(select count(*) from reps r where r.qr = q.qr) as treps ";
     $select .= "from qrcode q ";
 	$select .= "inner join master_type m on q.soort = m.id ";
@@ -133,6 +133,22 @@ function getQRCodeByCode($db, $qr) {
 	$s->execute();
 	return $s->fetch(PDO::FETCH_ASSOC);
 }
+function getReps($db, $bid, $qr) {
+	$select = "select lid, datum, qr, typex, status, checked from reps where bedrijf = :bid and qr = :qr";
+	$s = $db->prepare($select);
+	$s->bindValue(":bid", $bid);
+	$s->bindValue(":qr", $qr);
+	$s->execute();
+	return $s->fetchAll(PDO::FETCH_ASSOC);
+}
+function getLogs($db, $lid) {
+	$select = "select lid, invoer, value from logs where lid = :lid";
+	$s = $db->prepare($select);
+	$s->bindValue(":lid", $lid);
+	$s->execute();
+	return $s->fetchAll(PDO::FETCH_ASSOC);
+}
+
 // javaGetLogs
 function getLogsByQr($db, $qr) {
 	$select = "select r.*,b.naam, b.plaats,";

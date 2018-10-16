@@ -3,9 +3,11 @@ package nl.orsit.menu.logs;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.ImageDecoder;
+import android.media.Image;
+import android.media.ImageReader;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -28,7 +29,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,16 +40,20 @@ import nl.orsit.base.PhpParams;
 import nl.orsit.base.PhpResult;
 import nl.orsit.base.ScrollingTableItem;
 import nl.orsit.base.ServiceCallback;
-import nl.orsit.base.TabFragment;
+import nl.orsit.base.SpinnerFragment;
 import nl.orsit.menu.ListTouchListener;
 import nl.orsit.menu.MenuDataInterface;
 import nl.orsit.menu.R;
 import nl.orsit.menu.data.LogTypes;
 import nl.orsit.menu.data.MasterInvoer;
 import nl.orsit.menu.data.MasterStatus;
-import nl.orsit.menu.zoom.ImageViewTouch;
+import nl.orsit.menu.util.CameraUtil;
+import nl.orsit.menu.util.DialogUtil;
+import nl.orsit.menu.util.zoom.ImageViewTouch;
+import nl.orsit.menu.util.zoom.ImageViewTouchBase;
+import nl.orsit.menu.util.zoom.utils.BitmapUtils;
 
-public class LogsFragment extends TabFragment implements ServiceCallback {
+public class LogsFragment extends SpinnerFragment implements ServiceCallback {
 
     protected RecyclerView mRecyclerView;
     protected LogsAdapter mAdapter;
@@ -62,6 +66,7 @@ public class LogsFragment extends TabFragment implements ServiceCallback {
     private TableLayout dialogTableLayout;
     private LogItem currentData;
     private AlertDialog aDialog;
+    private DialogUtil dialogUtil;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -233,20 +238,20 @@ public class LogsFragment extends TabFragment implements ServiceCallback {
         return null;
     }
 
-    private void addImage(String value, boolean viewOnly, MasterInvoer mi, LogItem data) {
-        View label = createLabel(mi.getOmschrijving());
+    private void addImage(DialogUtil dialogUtil, String value, boolean viewOnly, MasterInvoer mi, LogItem data) {
+        View label = dialogUtil.createLabel(mi.getOmschrijving());
         if (value != null) {
-            View view = createBekijkFotoButton(mi, data.getLogs(), value);
-            addRows(dialogTableLayout, logDialogContext, label, view);
+            View view = createBekijkFotoButton(dialogUtil, mi, data.getLogs(), value);
+            dialogUtil.addRows(dialogTableLayout, label, view);
         } else {
             if (!viewOnly) {
-                View view = createMaakFotoButton(mi, data.getLogs());
-                addRows(dialogTableLayout, logDialogContext, label, view);
+                View view = createMaakFotoButton(dialogUtil, mi, data.getLogs());
+                dialogUtil.addRows(dialogTableLayout, label, view);
             }
         }
     }
 
-    private void addLogItemList(boolean viewOnly) {
+    private void addLogItemList(DialogUtil dialogUtil, boolean viewOnly) {
         List<MasterInvoer> list = masterLogData.getUserInvoerList(currentData.getStatus());
         for (MasterInvoer mi : list) {
             String value = getValue(mi, currentData);
@@ -255,16 +260,16 @@ public class LogsFragment extends TabFragment implements ServiceCallback {
                 case Choice:
                     break;
                 case Image:
-                    addImage(value, viewOnly, mi, currentData);
+                    addImage(dialogUtil, value, viewOnly, mi, currentData);
                     break;
                 case MultiText:
-                    addMultiText(sti, viewOnly, logDialogContext, dialogTableLayout);
+                    dialogUtil.addMultiText(sti, viewOnly, dialogTableLayout);
                     break;
                 case Number:
-                    addNumber(sti, viewOnly, logDialogContext, dialogTableLayout);
+                    dialogUtil.addNumber(sti, viewOnly, dialogTableLayout);
                     break;
                 case Text:
-                    addText(sti, viewOnly, logDialogContext, dialogTableLayout);
+                    dialogUtil.addText(sti, viewOnly, dialogTableLayout);
                     break;
             }
         }
@@ -272,49 +277,82 @@ public class LogsFragment extends TabFragment implements ServiceCallback {
 
     public void createInvoerChoiceDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        logDialogContext = builder.getContext();
-        final View alertView = LayoutInflater.from(this.logDialogContext).inflate(R.layout.invoer_dialog, null);
+        final Context myContext = builder.getContext();
+        final View alertView = LayoutInflater.from(myContext).inflate(R.layout.invoer_dialog, null);
         builder.setView(alertView);
+        DialogUtil dialogUtil = new DialogUtil() {
+            @Override
+            public Resources getResources() {
+                return LogsFragment.this.getResources();
+            }
+
+            @Override
+            public Context getContext() {
+                return myContext;
+            }
+
+            @Override
+            public void action() {
+                // what to do when we hit the 'save' button?
+            }
+        };
+
         TableLayout invoerHeader = (TableLayout)alertView.findViewById(R.id.invoerHeader);
-        prepareHeader(invoerHeader);
+        dialogUtil.prepareHeader(invoerHeader);
         invoerHeader.addView(prepareChoiceHeader(invoerHeader));
         builder.setCancelable(true);
         aDialog = builder.create();
         aDialog.show();
-        resizeHeaderDialog(aDialog, invoerHeader);
+        dialogUtil.resizeHeaderDialog(aDialog, invoerHeader);
 
     }
 
     public void createDialogTable(boolean viewOnly) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        logDialogContext = builder.getContext();
-        final View alertView = LayoutInflater.from(this.logDialogContext).inflate(R.layout.log_dialog, null);
+        final Context myContext = builder.getContext();
+        final View alertView = LayoutInflater.from(myContext).inflate(R.layout.log_dialog, null);
         builder.setView(alertView);
+        DialogUtil dialogUtil = new DialogUtil() {
+            @Override
+            public Resources getResources() {
+                return LogsFragment.this.getResources();
+            }
+
+            @Override
+            public Context getContext() {
+                return myContext;
+            }
+
+            @Override
+            public void action() {
+                // what do do when we click 'ok'?
+            }
+        };
 
         this.dialogTableLayout = (TableLayout)alertView.findViewById(R.id.logTableLayout);
         ScrollView scrollView = (ScrollView)alertView.findViewById(R.id.scrollTable);
         TableLayout logHeader = (TableLayout)alertView.findViewById(R.id.logHeader);
         TableLayout logFooter = (TableLayout)alertView.findViewById(R.id.logFooter);
 
-        prepareHeader(logHeader);
+        dialogUtil.prepareHeader(logHeader);
         logHeader.addView(prepareFixedHeader(logHeader));
-        addLogItemList(viewOnly);
+        addLogItemList(dialogUtil, viewOnly);
 
 
         builder.setCancelable(true);
         aDialog = builder.create();
         if (currentData.getKey() == null) {
-            prepareFooter("Toevoegen", logFooter, aDialog, viewOnly);
+            dialogUtil.prepareFooter("Toevoegen", logFooter, aDialog, viewOnly);
         } else {
-            prepareFooter("Wijzigen", logFooter, aDialog, viewOnly);
+            dialogUtil.prepareFooter("Wijzigen", logFooter, aDialog, viewOnly);
         }
 
         aDialog.show();
-        resizeDialog(aDialog, scrollView, logHeader, logFooter);
+        dialogUtil.resizeDialog(aDialog, scrollView, logHeader, logFooter);
     }
 
-    private Button createMaakFotoButton(MasterInvoer mi, Map<String, LogItemType> logs) {
-        Button button = createCleanButton("maak foto");
+    private Button createMaakFotoButton(final DialogUtil dialogUtil, MasterInvoer mi, Map<String, LogItemType> logs) {
+        Button button = dialogUtil.createCleanButton("maak foto");
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -327,16 +365,46 @@ public class LogsFragment extends TabFragment implements ServiceCallback {
                 builder.setCancelable(true);
                 final AlertDialog cameraDialog = builder.create();
                 cameraDialog.show();
-                resizeFooterDialog(cameraDialog, textureView, takePictureButton);
-                final Scanner scanner = new Scanner(getActivity(), cameraDialog, textureView, takePictureButton);
-                scanner.startScanner();
+                dialogUtil.resizeFooterDialog(cameraDialog, textureView, takePictureButton);
+                final CameraUtil cameraUtil = new CameraUtil(getActivity(), cameraDialog, textureView);
+                takePictureButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cameraUtil.takePicture();
+                    }
+                });
+                cameraUtil.setImageAvailableLister(new ImageReader.OnImageAvailableListener() {
+                    @Override
+                    public void onImageAvailable(ImageReader reader) {
+                        Image image = null;
+                        try {
+                            image = reader.acquireNextImage();
+                            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                            byte[] bytes = new byte[buffer.capacity()];
+                            buffer.get(bytes);
+                            System.out.println("Image captured: " + bytes.length);
+
+                            String foto = Base64.encodeToString(bytes, bytes.length);
+                            System.out.println("-------------------------------- FOTO TAKEN -----------------------");
+                            System.out.println(foto);
+                            //TODO: do something with these bytes. This is the picture!
+                        } finally {
+                            if (image != null) {
+                                image.close();
+                            }
+                            cameraUtil.closeCamera();
+                            cameraDialog.dismiss();
+                        }
+                    }
+                });
+                cameraUtil.startCamera();
             }
         });
         return button;
     }
 
-    private Button createBekijkFotoButton(MasterInvoer mi, Map<String, LogItemType> logs, final String foto) {
-        Button button = createCleanButton("bekijk foto");
+    private Button createBekijkFotoButton(final DialogUtil dialogUtil, MasterInvoer mi, Map<String, LogItemType> logs, final String foto) {
+        Button button = dialogUtil.createCleanButton("bekijk foto");
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -344,39 +412,39 @@ public class LogsFragment extends TabFragment implements ServiceCallback {
                 Context dialogContext = builder.getContext();
                 final View pictureView = LayoutInflater.from(dialogContext).inflate(R.layout.picture_dialog, null);
 
-                ImageViewTouch imageView = pictureView.findViewById(R.id.pictureView);
+                Button pictureButton = pictureView.findViewById(R.id.pictureButton);
+                ImageViewTouch pictureImageView = pictureView.findViewById(R.id.pictureView);
                 final String pureBase64Encoded = foto.substring(foto.indexOf(",")  + 1);
-                System.out.println("-------------------------------- FOTO FROM LOG -----------------------");
-                System.out.println(foto);
 
                 byte[] decodedString = Base64.decode(pureBase64Encoded, Base64.DEFAULT);
                 Bitmap bm = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                imageView.setImageBitmap(bm);
-
 
                 builder.setView(pictureView);
                 builder.setCancelable(true);
                 final AlertDialog pictureDialog = builder.create();
-                imageView.setOnClickListener(new View.OnClickListener() {
+                pictureButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         pictureDialog.dismiss();
                     }
                 });
                 pictureDialog.show();
-                resizeEmptyDialog(pictureDialog);
+                pictureImageView.setDisplayType(ImageViewTouchBase.DisplayType.FIT_IF_BIGGER);
+                dialogUtil.resizeFooterDialog(pictureDialog, pictureImageView, pictureButton);
+                ViewGroup.LayoutParams lp = pictureImageView.getLayoutParams();
+                int width = lp.width - 30;
+                int height = lp.height - 30;
+                System.out.println("ImageView [w/h]: " + width + "/" + height);
+                System.out.println("BM before resize [w/h]: " + bm.getWidth() + " / " + bm.getHeight());
+                BitmapUtils.resizeBitmap(bm, width, height);
+                System.out.println("BM after resize [w/h]: " + bm.getWidth() + " / " + bm.getHeight());
+                pictureImageView.setImageBitmap(bm, null, -1, -1);
             }
         });
 
         return button;
     }
 
-
-    @Override
-    protected void action() {
-        /// wat te doen als we een log toevoegen of wijzigen?
-
-    }
 
     public void addLog() {
         currentData = new LogItem(masterLogData);

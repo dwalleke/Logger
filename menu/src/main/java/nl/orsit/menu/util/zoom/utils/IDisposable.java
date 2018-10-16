@@ -1,4 +1,4 @@
-package nl.orsit.menu.zoom.utils;
+package nl.orsit.menu.util.zoom.utils;
 
 public interface IDisposable {
 

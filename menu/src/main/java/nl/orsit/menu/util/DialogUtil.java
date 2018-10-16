@@ -1,18 +1,13 @@
-package nl.orsit.base;
+package nl.orsit.menu.util;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
-import android.os.Build;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.ActivityCompat;
 import android.text.InputType;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -21,17 +16,22 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import nl.orsit.logger.R;
+import nl.orsit.base.ScrollingTableItem;
+import nl.orsit.menu.R;
 
-abstract public class TabFragment extends SpinnerFragment {
+public abstract class DialogUtil {
 
-    abstract protected void action();
+    abstract public Resources getResources();
 
-    protected void addRows(TableLayout ll, Context dialogContext, View label, View view) {
-        addRows(ll, dialogContext, label, view, true);
+    abstract public Context getContext();
+
+    abstract public void action();
+
+    public void addRows(TableLayout ll, View label, View view) {
+        addRows(ll, label, view, true);
     }
 
-    protected Button createCleanButton(String text) {
+    public Button createCleanButton(String text) {
         Button button = new Button(getContext());
         button.setBackgroundResource(R.drawable.rounded_button_shape);
         button.setTextColor(Color.parseColor("#ffffff"));
@@ -39,29 +39,29 @@ abstract public class TabFragment extends SpinnerFragment {
         return button;
     }
 
-    protected void addText(ScrollingTableItem item, boolean viewOnly, Context dialogContext, TableLayout tableLayout) {
-        addInput(item, viewOnly, dialogContext, tableLayout, InputType.TYPE_CLASS_TEXT);
+    public void addText(ScrollingTableItem item, boolean viewOnly, TableLayout tableLayout) {
+        addInput(item, viewOnly, tableLayout, InputType.TYPE_CLASS_TEXT);
     }
-    protected void addNumber(ScrollingTableItem item, boolean viewOnly, Context dialogContext, TableLayout tableLayout) {
-        addInput(item, viewOnly, dialogContext, tableLayout, InputType.TYPE_NUMBER_FLAG_DECIMAL);
+    public void addNumber(ScrollingTableItem item, boolean viewOnly, TableLayout tableLayout) {
+        addInput(item, viewOnly, tableLayout, InputType.TYPE_NUMBER_FLAG_DECIMAL);
     }
-    protected void addMultiText(ScrollingTableItem item, boolean viewOnly, Context dialogContext, TableLayout tableLayout) {
+    public void addMultiText(ScrollingTableItem item, boolean viewOnly, TableLayout tableLayout) {
         View labelView = createLabel(item.getLabel());
         if (item.getValue() != null) {
             View view = createTextView(item.getValue());
             view.setMinimumHeight(200);
-            addRows(tableLayout, dialogContext, labelView, view, false);
+            addRows(tableLayout, labelView, view, false);
         } else {
             if (!viewOnly) {
                 View inputView = createInputView(item.getId(), InputType.TYPE_CLASS_TEXT, item.getValue());
                 inputView.setMinimumHeight(200);
-                addRows(tableLayout, dialogContext, labelView, inputView, false);
+                addRows(tableLayout, labelView, inputView, false);
             }
         }
 
     }
 
-    protected void prepareHeader(TableLayout logHeader) {
+    public void prepareHeader(TableLayout logHeader) {
         ViewGroup.LayoutParams hlp = logHeader.getLayoutParams();
         hlp.height = 100;
         logHeader.setLayoutParams(hlp);
@@ -69,7 +69,7 @@ abstract public class TabFragment extends SpinnerFragment {
 
     }
 
-    protected void prepareFooter(String buttonText, TableLayout footer, final AlertDialog alertDialog, boolean viewOnly) {
+    public void prepareFooter(String buttonText, TableLayout footer, final AlertDialog alertDialog, boolean viewOnly) {
         TableRow row = new TableRow(getContext());
         if (!viewOnly) {
             final Button toevoegen = createCleanButton(buttonText);
@@ -105,7 +105,7 @@ abstract public class TabFragment extends SpinnerFragment {
 
 
 
-    protected void resizeDialog(Dialog dialog, ScrollView scrollView, View logHeader, View logFooter) {
+    public void resizeDialog(Dialog dialog, View centerView, View headerView, View footerView) {
         int width = (int)(getResources().getDisplayMetrics().widthPixels*0.90);
         int height = (int)(getResources().getDisplayMetrics().heightPixels*0.90);
 
@@ -114,27 +114,27 @@ abstract public class TabFragment extends SpinnerFragment {
         width -= 30;
 
         // scrollview
-        ViewGroup.LayoutParams lpScrollView = scrollView.getLayoutParams();
+        ViewGroup.LayoutParams lpScrollView = centerView.getLayoutParams();
 
         // logheader
-        ViewGroup.LayoutParams lpHeader = logHeader.getLayoutParams();
+        ViewGroup.LayoutParams lpHeader = headerView.getLayoutParams();
         lpHeader.width = width;
-        logHeader.setLayoutParams(lpHeader);
+        headerView.setLayoutParams(lpHeader);
 
         // logfooter
-        ViewGroup.LayoutParams lpFooter = logFooter.getLayoutParams();
+        ViewGroup.LayoutParams lpFooter = footerView.getLayoutParams();
         lpFooter.width = width;
-        logFooter.setLayoutParams(lpFooter);
+        footerView.setLayoutParams(lpFooter);
 
         lpScrollView.width = width;
         lpScrollView.height = height - (lpHeader.height + lpFooter.height);
-        scrollView.setLayoutParams(lpScrollView);
+        centerView.setLayoutParams(lpScrollView);
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.rounded_edit_shape);
 
 
     }
 
-    protected void resizeHeaderDialog(Dialog dialog, View header) {
+    public void resizeHeaderDialog(Dialog dialog, View header) {
         int width = (int)(getResources().getDisplayMetrics().widthPixels*0.90);
         int height = (int)(getResources().getDisplayMetrics().heightPixels*0.90);
 
@@ -152,14 +152,20 @@ abstract public class TabFragment extends SpinnerFragment {
 
     }
 
-    protected void resizeEmptyDialog(Dialog dialog) {
+    public void resizeEmptyDialog(Dialog dialog, View view) {
         int width = (int)(getResources().getDisplayMetrics().widthPixels*0.90);
         int height = (int)(getResources().getDisplayMetrics().heightPixels*0.90);
         dialog.getWindow().setLayout(width, height);
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.rounded_edit_shape);
+//        width -= 30;
+//        height -= 30;
+        ViewGroup.LayoutParams lp = view.getLayoutParams();
+        lp.width = width;
+        lp.height = height;
+        view.setLayoutParams(lp);
     }
 
-    protected void resizeFooterDialog(Dialog dialog, View view, Button button) {
+    public void resizeFooterDialog(Dialog dialog, View view, Button button) {
         int width = (int)(getResources().getDisplayMetrics().widthPixels*0.90);
         int height = (int)(getResources().getDisplayMetrics().heightPixels*0.90);
         dialog.getWindow().setLayout(width, height);
@@ -179,22 +185,22 @@ abstract public class TabFragment extends SpinnerFragment {
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.rounded_edit_shape);
     }
 
-    protected TextView createLabel(String text) {
+    public TextView createLabel(String text) {
         TextView label = new TextView(getContext());
         label.setText(text);
         return label;
     }
 
     /** PRIVATE METHODS */
-    private void addRows(TableLayout ll, Context dialogContext, View label, View view, boolean singleRow) {
-        TableRow row = new TableRow(dialogContext);
+    private void addRows(TableLayout ll, View label, View view, boolean singleRow) {
+        TableRow row = new TableRow(getContext());
         ll.addView(prepareRow(row));
         if (singleRow) {
             row.addView(prepareCell(label, 1));
             row.addView(prepareCell(view, 1));
         } else {
             row.addView(prepareCell(label, 2));
-            TableRow secondRow = new TableRow(dialogContext);
+            TableRow secondRow = new TableRow(getContext());
             prepareRow(secondRow);
             secondRow.addView(prepareCell(view, 2));
             ll.addView(secondRow);
@@ -240,20 +246,18 @@ abstract public class TabFragment extends SpinnerFragment {
 
 
 
-    private void addInput(ScrollingTableItem item, boolean viewOnly, Context dialogContext, TableLayout tableLayout, int type) {
+    private void addInput(ScrollingTableItem item, boolean viewOnly, TableLayout tableLayout, int type) {
         View label = createLabel(item.getLabel());
         if (item.getValue() != null) {
             View view = createTextView(item.getValue());
-            addRows(tableLayout, dialogContext, label, view);
+            addRows(tableLayout, label, view);
         } else {
             if (!viewOnly) {
                 View view = createInputView(item.getId(), InputType.TYPE_CLASS_TEXT, item.getValue());
-                addRows(tableLayout, dialogContext, label, view);
+                addRows(tableLayout, label, view);
             }
         }
 
     }
-
-
 
 }

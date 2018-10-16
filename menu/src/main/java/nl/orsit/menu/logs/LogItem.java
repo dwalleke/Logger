@@ -1,5 +1,6 @@
 package nl.orsit.menu.logs;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,13 +54,22 @@ public class LogItem {
             this.status = value.getString("status");
             this.type = value.getString("typex");
             this.checked = value.getString("checked").equals("1");
-            JSONObject loglist = new JSONObject(value.getString("logs"));
-            Iterator<String> it = loglist.keys();
-            while (it.hasNext()) {
-                String j = it.next();
-                String val = loglist.getString(j);
-                this.logs.put(j, new LogItemType(j, val, this.logTypes));
+            System.out.println("logs: " + value.get("logs"));
+            JSONArray loglist = new JSONArray(value.getString("logs"));
+            for (int i = 0; i < loglist.length(); i++) {
+                JSONObject log = (JSONObject) loglist.get(i);
+                String lid = log.getString("lid");
+                String invoer = log.getString("invoer");
+                String val = log.getString("value");
+                this.logs.put(invoer, new LogItemType(lid, invoer, val, this.logTypes));
             }
+//            JSONObject loglist = new JSONObject(value.getString("logs"));
+//            Iterator<String> it = loglist.keys();
+//            while (it.hasNext()) {
+//                String j = it.next();
+//                String val = loglist.getString(j);
+//                this.logs.put(j, new LogItemType(j, val, this.logTypes));
+//            }
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (ParseException e) {

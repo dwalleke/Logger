@@ -9,9 +9,6 @@
             android:name=".MenuActivity"
             android:theme="@style/MenuTheme">
         </activity>
-        <activity android:name=".logs.ScannerActivity"
-            android:theme="@style/MenuTheme"
-            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

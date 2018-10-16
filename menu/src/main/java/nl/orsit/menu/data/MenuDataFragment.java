@@ -12,7 +12,6 @@ import nl.orsit.base.PhpParams;
 import nl.orsit.base.PhpResult;
 import nl.orsit.base.ServiceCallback;
 import nl.orsit.base.SpinnerFragment;
-import nl.orsit.base.TabFragment;
 import nl.orsit.menu.MenuDataInterface;
 import nl.orsit.menu.R;
 

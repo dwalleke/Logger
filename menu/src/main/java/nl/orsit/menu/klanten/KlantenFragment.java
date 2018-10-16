@@ -24,12 +24,12 @@ import nl.orsit.base.BackendServiceCall;
 import nl.orsit.base.PhpParams;
 import nl.orsit.base.PhpResult;
 import nl.orsit.base.ServiceCallback;
-import nl.orsit.base.TabFragment;
+import nl.orsit.base.SpinnerFragment;
 import nl.orsit.menu.ListTouchListener;
 import nl.orsit.menu.MenuDataInterface;
 import nl.orsit.menu.R;
 
-public class KlantenFragment extends TabFragment implements ServiceCallback {
+public class KlantenFragment extends SpinnerFragment implements ServiceCallback {
 
     protected RecyclerView mRecyclerView;
     protected TextInputEditText mSearchView;
@@ -69,6 +69,7 @@ public class KlantenFragment extends TabFragment implements ServiceCallback {
                     private void savePreference(String kid) {
                         SharedPreferences.Editor editor = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE).edit();
                         editor.putString("kid", kid);
+                        editor.putString("obj", "");
                         editor.apply();
                     }
                 })
@@ -165,8 +166,4 @@ public class KlantenFragment extends TabFragment implements ServiceCallback {
 
     }
 
-    @Override
-    protected void action() {
-
-    }
 }

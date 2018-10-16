@@ -1,4 +1,4 @@
-package nl.orsit.menu.zoom;
+package nl.orsit.menu.util.zoom;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -14,8 +14,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.OnScaleGestureListener;
 import android.view.ViewConfiguration;
-
-import nl.orsit.menu.zoom.ImageViewTouchBase;
 
 public class ImageViewTouch extends ImageViewTouchBase {
     static final float SCROLL_DELTA_THRESHOLD = 1.0f;

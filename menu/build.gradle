@@ -5,10 +5,7 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
-
-
 }
-
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

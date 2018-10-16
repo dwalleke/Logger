@@ -1,4 +1,4 @@
-package nl.orsit.menu.zoom.graphics;
+package nl.orsit.menu.util.zoom.graphics;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;

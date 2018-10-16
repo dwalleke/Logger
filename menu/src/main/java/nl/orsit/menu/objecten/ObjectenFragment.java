@@ -19,12 +19,12 @@ import nl.orsit.base.BackendServiceCall;
 import nl.orsit.base.PhpParams;
 import nl.orsit.base.PhpResult;
 import nl.orsit.base.ServiceCallback;
-import nl.orsit.base.TabFragment;
+import nl.orsit.base.SpinnerFragment;
 import nl.orsit.menu.ListTouchListener;
 import nl.orsit.menu.MenuDataInterface;
 import nl.orsit.menu.R;
 
-public class ObjectenFragment extends TabFragment implements ServiceCallback {
+public class ObjectenFragment extends SpinnerFragment implements ServiceCallback {
 
     protected RecyclerView mRecyclerView;
     protected ObjectenAdapter mAdapter;
@@ -140,8 +140,4 @@ public class ObjectenFragment extends TabFragment implements ServiceCallback {
     public void addObject() {
     }
 
-    @Override
-    protected void action() {
-
-    }
 }

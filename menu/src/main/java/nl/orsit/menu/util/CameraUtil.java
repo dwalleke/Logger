@@ -1,7 +1,9 @@
-package nl.orsit.menu.logs;
+package nl.orsit.menu.util;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -34,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Scanner {
+public class CameraUtil {
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     static {
@@ -53,31 +55,31 @@ public class Scanner {
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private Handler mBackgroundHandler;
 
-    protected FragmentActivity mActivity;
+    protected Activity mActivity;
     private TextureView textureView;
     private AlertDialog dialog;
+    private ImageReader.OnImageAvailableListener readerListener;
 
 
-    public Scanner(FragmentActivity activity, final AlertDialog dialog, TextureView textureView, Button takePictureButton) {
+    public CameraUtil(Activity activity, final AlertDialog dialog, TextureView textureView) {
         this.textureView = textureView;
         this.mActivity = activity;
         this.dialog = dialog;
-        this.textureView.setOnClickListener(new View.OnClickListener() {
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
-            public void onClick(View v) {
+            public void onDismiss(DialogInterface dialog) {
                 closeCamera();
-                dialog.dismiss();
             }
         });
-        takePictureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                takePicture();
-            }
-        });
+
     }
 
-    public void startScanner() {
+    public void setImageAvailableLister(ImageReader.OnImageAvailableListener readerListener) {
+        this.readerListener = readerListener;
+
+    }
+
+    public void startCamera() {
         textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
             public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
@@ -121,90 +123,64 @@ public class Scanner {
         }
     };
 
-    private void takePicture() {
+    private ImageReader createImageReader() throws CameraAccessException {
+        CameraManager manager = (CameraManager) mActivity.getSystemService(CameraManager.class);
+        CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraDevice.getId());
+        Size[] jpegSizes = null;
+        if (characteristics != null) {
+            jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.JPEG);
+        }
+        int width = 640;
+        int height = 480;
+        if (jpegSizes != null && 0 < jpegSizes.length) {
+            width = jpegSizes[0].getWidth();
+            height = jpegSizes[0].getHeight();
+        }
+        System.out.println("Picture [w/h] = " + width + " / " + height);
+        return ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
+    }
+
+    public boolean takePicture() {
         if (null == cameraDevice) {
             System.out.println("cameraDevice is null");
-            return;
+            return false;
         }
-        CameraManager manager = (CameraManager) mActivity.getSystemService(CameraManager.class);
         try {
-            CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraDevice.getId());
-            Size[] jpegSizes = null;
-            if (characteristics != null) {
-                jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.JPEG);
-            }
-            int width = 640;
-            int height = 480;
-            if (jpegSizes != null && 0 < jpegSizes.length) {
-                width = jpegSizes[0].getWidth();
-                height = jpegSizes[0].getHeight();
-            }
-            System.out.println("Picture [w/h] = " + width + " / " + height);
-            ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
+            imageReader = createImageReader();
+
             List<Surface> outputSurfaces = new ArrayList<Surface>();
-            outputSurfaces.add(reader.getSurface());
-            outputSurfaces.add(new Surface(textureView.getSurfaceTexture()));
+            outputSurfaces.add(imageReader.getSurface()); // send feed to reader
+            outputSurfaces.add(new Surface(textureView.getSurfaceTexture())); // send feed to preview
+
             final CaptureRequest.Builder captureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-            captureBuilder.addTarget(reader.getSurface());
+            captureBuilder.addTarget(imageReader.getSurface());
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
             // orientation;
             int rotation = mActivity.getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
-            ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
 
-                @Override
-                public void onImageAvailable(ImageReader reader) {
-                    Image image = null;
-                    try {
-                        image = reader.acquireNextImage();
-                        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                        byte[] bytes = new byte[buffer.capacity()];
-                        buffer.get(bytes);
-                        System.out.println("Image captured: " + bytes.length);
+            // listen for images to become available.
+            imageReader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
 
-                        String foto = Base64.encodeToString(bytes, bytes.length);
-                        System.out.println("-------------------------------- FOTO TAKEN -----------------------");
-                        System.out.println(foto);
-                        //TODO: do something with these bytes. This is the picture!
-                    } finally {
-                        if (image != null) {
-                            image.close();
-                        }
-                        closeCamera();
-                        dialog.dismiss();
-                    }
-                }
-            };
-            reader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
-            final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
-                @Override
-                public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-                    super.onCaptureCompleted(session, request, result);
-                    System.out.println("captureListener -> createCameraPreview");
-                    createCameraPreview();
-                }
-            };
+            // create a capture session.
             cameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
-
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession session) {
                     try {
-                        System.out.println("Capturing onConfigured");
-                        session.capture(captureBuilder.build(), captureListener, mBackgroundHandler);
-                        System.out.println("Captured onConfigured");
+                        session.capture(captureBuilder.build(), null, null);
                     } catch (CameraAccessException e) {
                         e.printStackTrace();
                     }
                 }
-
                 @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession session) {
                 }
-            }, mBackgroundHandler);
+            }, null);
 
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+        return true;
     }
 
 
@@ -271,7 +247,7 @@ public class Scanner {
         }
     }
 
-    protected void closeCamera() {
+    public void closeCamera() {
         if (null != cameraDevice) {
             cameraDevice.close();
             cameraDevice = null;

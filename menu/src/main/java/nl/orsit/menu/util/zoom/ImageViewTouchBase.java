@@ -1,4 +1,4 @@
-package nl.orsit.menu.zoom;
+package nl.orsit.menu.util.zoom;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -18,8 +18,8 @@ import android.util.Log;
 import android.view.ViewConfiguration;
 import android.view.animation.DecelerateInterpolator;
 
-import nl.orsit.menu.zoom.graphics.FastBitmapDrawable;
-import nl.orsit.menu.zoom.utils.IDisposable;
+import nl.orsit.menu.util.zoom.graphics.FastBitmapDrawable;
+import nl.orsit.menu.util.zoom.utils.IDisposable;
 
 
 /**

@@ -1,5 +1,6 @@
 package nl.orsit.menu.data;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import nl.orsit.base.ServiceCallback;
 import nl.orsit.base.SpinnerFragment;
 import nl.orsit.menu.MenuDataInterface;
 import nl.orsit.menu.R;
+import nl.orsit.menu.util.MenuInfoReloader;
 
 public class MenuDataFragment extends SpinnerFragment implements ServiceCallback {
 
@@ -32,16 +34,12 @@ public class MenuDataFragment extends SpinnerFragment implements ServiceCallback
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.menu_data, container, false);
-//        ViewGroup.LayoutParams lp = rootView.getLayoutParams();
-//        lp.height = 200;
-//        rootView.setLayoutParams(lp);
-
         return rootView;
     }
 
     @Override
     public View getProgressView() {
-        return getActivity().findViewById(R.id.progress);
+        return MenuInfoReloader.getActivity().findViewById(R.id.progress);
     }
 
     @Override
@@ -49,17 +47,26 @@ public class MenuDataFragment extends SpinnerFragment implements ServiceCallback
         return getActivity().findViewById(R.id.appbar);
     }
 
+    @Override
+    public void loadDataset(Activity activity) {
+
+    }
+
+    @Override
+    public void resetData() {
+
+    }
+
     public void loadDataset() {
-        if (getActivity() != null) {
-            SharedPreferences prefs = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE);
-            PhpParams params = new PhpParams();
-            params.add("bid", prefs.getString("bid", ""));
-            params.add("mid", prefs.getString("mid", ""));
-            params.add("kid", prefs.getString("kid", ""));
-            params.add("obj", prefs.getString("obj", ""));
-            this.mTask = new BackendServiceCall(this, "javaData", "default", params);
-            this.mTask.execute();
-        }
+
+        SharedPreferences prefs = MenuInfoReloader.getActivity().getSharedPreferences("UserData", MenuInfoReloader.getActivity().MODE_PRIVATE);
+        PhpParams params = new PhpParams();
+        params.add("bid", prefs.getString("bid", ""));
+        params.add("mid", prefs.getString("mid", ""));
+        params.add("kid", prefs.getString("kid", ""));
+        params.add("obj", prefs.getString("obj", ""));
+        this.mTask = new BackendServiceCall(this, "javaData", "default", params);
+        this.mTask.execute();
     }
 
 

@@ -11,15 +11,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".objecten.ObjectenFragment">
 
-    <ProgressBar
-        android:id="@+id/objecten_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />
-
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/objectenRecycleView"
         android:scrollbars="vertical"

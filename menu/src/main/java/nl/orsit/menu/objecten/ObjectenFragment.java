@@ -1,5 +1,6 @@
 package nl.orsit.menu.objecten;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -7,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,7 +40,6 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadDataset();
     }
 
     @Override
@@ -51,14 +52,8 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
                 new ListTouchListener(getActivity(), mRecyclerView ,new ListTouchListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         if (mDataset.size() > position) {
-                            String obj = mDataset.get(position).getKey();
-                            if (obj != null) {
-                                String type = mDataset.get(position).getSoort();
-                                MenuInfoReloader.setUserData(null, null, null, obj);
-                                MenuInfoReloader.savePref("obj_soort", type);
-                                MenuDataInterface activity = (MenuDataInterface) getActivity();
-                                activity.getTabAdapter().setLogsFragment();
-                            }
+                            ObjectItem chosen = mDataset.get(position);
+                            pickObject(chosen);
                         }
                     }
 
@@ -78,29 +73,44 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
         );
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
+        mDataset = new ArrayList<>();
         mAdapter = new ObjectenAdapter(mDataset);
         mRecyclerView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
         return rootView;
     }
 
+    private void pickObject(ObjectItem chosen) {
+        String obj = chosen.getKey();
+        if (obj != null) {
+            String type = chosen.getSoort();
+            MenuInfoReloader.setUserData(null, null, null, obj);
+            MenuInfoReloader.savePref("obj_soort", type);
+            MenuDataInterface activity = (MenuDataInterface) getActivity();
+            activity.getTabAdapter().setLogsFragment(true, true);
+        }
+    }
 
     /**
      * Generates Strings for RecyclerView's adapter. This data would usually come
      * from a local content provider or remote server.
      */
-    public void loadDataset() {
-        if (getActivity() != null) {
-            if(mAdapter != null) {
-                mAdapter.setDataSet(new ArrayList<ObjectItem>());
-                mAdapter.notifyDataSetChanged();
-            }
-            SharedPreferences prefs = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE);
-            PhpParams params = new PhpParams();
-            params.add("bid", prefs.getString("bid", ""));
-            params.add("kid", prefs.getString("kid", ""));
-            this.mTask = new BackendServiceCall(this, "javaGetObjecten", "default", params);
-            this.mTask.execute();
-            mDataset = new ArrayList<>();
+    public void loadDataset(Activity activity) {
+        System.out.println("Loading dataset objecten");
+        SharedPreferences prefs = activity.getSharedPreferences("UserData", activity.MODE_PRIVATE);
+        PhpParams params = new PhpParams();
+        params.add("bid", prefs.getString("bid", ""));
+        params.add("kid", prefs.getString("kid", ""));
+        this.mTask = new BackendServiceCall(this, "javaGetObjecten", "default", params);
+        this.mTask.execute();
+    }
+
+    @Override
+    public void resetData() {
+        mDataset = new ArrayList<>();
+        if (mAdapter != null) {
+            mAdapter.setDataSet(mDataset);
+            mAdapter.notifyDataSetChanged();
         }
     }
 
@@ -123,11 +133,19 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
                 mDataset.add(new ObjectItem(((MenuDataInterface)getActivity()).getLogTypes(), obj));
             }
             if (mDataset.size() == 0) {
-                mDataset.add(new ObjectItem());
+                Toast.makeText(MenuInfoReloader.getActivity(), "Geen resultaten gevonden." , Toast.LENGTH_LONG ).show();
+            } else {
+                if(mDataset.size() == 1) {
+                    if (MenuInfoReloader.getLevel() == MenuDataInterface.LEVEL.NORMAAL) {
+                        pickObject(mDataset.get(0));
+                    }
+                }
             }
+
 
             mAdapter.setDataSet(mDataset);
             mAdapter.notifyDataSetChanged();
+            System.out.println("Loaded dataset objecten");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -135,7 +153,7 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
 
     @Override
     public View getProgressView() {
-        return rootView.findViewById(R.id.objecten_progress);
+        return MenuInfoReloader.getActivity().findViewById(R.id.progress);
     }
 
     @Override

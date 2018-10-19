@@ -34,6 +34,10 @@ public class LogItem {
         this.checked = false;
     }
 
+    public LogItem() {
+        // default for error message.
+    }
+
     public void setType(String type) {
         this.type = type;
     }

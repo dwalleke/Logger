@@ -1,5 +1,6 @@
 package nl.orsit.menu.logs;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
@@ -24,6 +26,7 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,8 +50,10 @@ import nl.orsit.menu.R;
 import nl.orsit.menu.data.LogTypes;
 import nl.orsit.menu.data.MasterInvoer;
 import nl.orsit.menu.data.MasterStatus;
+import nl.orsit.menu.objecten.ObjectItem;
 import nl.orsit.menu.util.CameraUtil;
 import nl.orsit.menu.util.DialogUtil;
+import nl.orsit.menu.util.MenuInfoReloader;
 import nl.orsit.menu.util.zoom.ImageViewTouch;
 import nl.orsit.menu.util.zoom.ImageViewTouchBase;
 import nl.orsit.menu.util.zoom.utils.BitmapUtils;
@@ -71,7 +76,6 @@ public class LogsFragment extends SpinnerFragment implements ServiceCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadDataset();
     }
 
     @Override
@@ -84,30 +88,36 @@ public class LogsFragment extends SpinnerFragment implements ServiceCallback {
                 new ListTouchListener(getActivity(), mRecyclerView ,new ListTouchListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         String log = mDataset.get(position).getKey();
-                        savePreference(log);
                         currentData = mDataset.get(position);
                         createDialogTable(true);
                    }
 
                     @Override public void onLongItemClick(View view, int position) {
                         String log = mDataset.get(position).getKey();
-                        savePreference(log);
-                        currentData = mDataset.get(position);
-                        createDialogTable(false);
+                        MenuInfoReloader.savePref("log", log);
+                        MenuInfoReloader.getActivity().getTabAdapter().setLogFragment(true, true);
                     }
 
-                    private void savePreference(String kid) {
-                        SharedPreferences.Editor editor = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE).edit();
-                        editor.putString("log", kid);
-                        editor.apply();
-
-                    }
                 })
         );
+        FloatingActionButton add = (FloatingActionButton) rootView.findViewById(R.id.addLog);
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MenuInfoReloader.savePref("log", null);
+                MenuInfoReloader.getActivity().getTabAdapter().setLogFragment(true, true);
+            }
+        });
+        if (MenuInfoReloader.getPref("obj") == null) {
+            add.hide();
+        }
+
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
+        mDataset = new ArrayList<>();
         mAdapter = new LogsAdapter(mDataset);
         mRecyclerView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
         return rootView;
     }
 
@@ -116,21 +126,25 @@ public class LogsFragment extends SpinnerFragment implements ServiceCallback {
      * Generates Strings for RecyclerView's adapter. This data would usually come
      * from a local content provider or remote server.
      */
-    public void loadDataset() {
-        if (getActivity() != null) {
-            if (mAdapter != null) {
-                mAdapter.setDataSet(new ArrayList<LogItem>());
-                mAdapter.notifyDataSetChanged();
-            }
-            SharedPreferences prefs = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE);
-            PhpParams params = new PhpParams();
-            params.add("bid", prefs.getString("bid", ""));
-            params.add("kid", prefs.getString("kid", ""));
-            params.add("obj", prefs.getString("obj", ""));
-            this.mTask = new BackendServiceCall(this, "javaGetLogs", "default", params);
-            this.mTask.execute();
-            mDataset = new ArrayList<>();
+    public void loadDataset(Activity activity) {
+        System.out.println("Loading dataset logs");
+        SharedPreferences prefs = activity.getSharedPreferences("UserData", activity.MODE_PRIVATE);
+        PhpParams params = new PhpParams();
+        params.add("bid", prefs.getString("bid", ""));
+        params.add("kid", prefs.getString("kid", ""));
+        params.add("obj", prefs.getString("obj", ""));
+        this.mTask = new BackendServiceCall(this, "javaGetLogs", "default", params);
+        this.mTask.execute();
+    }
+
+    @Override
+    public void resetData() {
+        mDataset = new ArrayList<>();
+        if (mAdapter != null) {
+            mAdapter.setDataSet(mDataset);
+            mAdapter.notifyDataSetChanged();
         }
+
     }
 
     @Override
@@ -154,6 +168,11 @@ public class LogsFragment extends SpinnerFragment implements ServiceCallback {
             }
             mAdapter.setDataSet(mDataset);
             mAdapter.notifyDataSetChanged();
+            System.out.println("Loaded dataset logs");
+            if (mDataset.size() == 0) {
+                Toast.makeText(MenuInfoReloader.getActivity(), "Geen resultaten gevonden." , Toast.LENGTH_LONG ).show();
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -161,7 +180,7 @@ public class LogsFragment extends SpinnerFragment implements ServiceCallback {
 
     @Override
     public View getProgressView() {
-        return getActivity().findViewById(R.id.progress);
+        return MenuInfoReloader.getActivity().findViewById(R.id.progress);
     }
 
     @Override
@@ -179,7 +198,7 @@ public class LogsFragment extends SpinnerFragment implements ServiceCallback {
         TextView headerText = new TextView(getContext());
         MasterStatus ms = masterLogData.getUserStatus(currentData.getType(), currentData.getStatus());
         headerText.setText(ms.getOmschrijving());
-
+        // TODO: Hier ook de datum van de log nogmaals plaatsen.
         TableRow row = new TableRow(getContext());
         row.addView(headerText);
         return row;

@@ -3,6 +3,7 @@ package nl.orsit.base;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -21,6 +22,8 @@ abstract public class SpinnerFragment extends Fragment {
 
     public abstract View getProgressView();
     public abstract View getParentView();
+    public abstract void loadDataset(Activity activity);
+    public abstract void resetData();
 
     /**
      * Shows the progress UI and hides the login form.

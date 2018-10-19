@@ -27,16 +27,6 @@ public class ScannerFragment extends SpinnerFragment implements ServiceCallback 
     private BackendServiceCall mTask;
     private View rootView;
 
-    public void startScanner() {
-        if (mCodeScanner == null) {
-            System.out.println("No scanner found");
-        } else {
-            mCodeScanner.startPreview();
-            System.out.println("Scanner started");
-        }
-
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -57,6 +47,7 @@ public class ScannerFragment extends SpinnerFragment implements ServiceCallback 
                         params.add("qrc", result.getText());
                         mTask = new BackendServiceCall(ScannerFragment.this, "javaScanObject", "default", params);
                         mTask.execute();
+                        mCodeScanner.startPreview();
                     }
                 });
             }
@@ -87,26 +78,36 @@ public class ScannerFragment extends SpinnerFragment implements ServiceCallback 
     public void finish(PhpResult phpResult) {
         this.mTask = null;
         showProgress(false);
-        MenuDataInterface activity = (MenuDataInterface) getActivity();
         if (!phpResult.getErrors().containsKey("error")) {
-            String obj = phpResult.getResults().get("qr");
+            String obj = phpResult.getResults().get("obj");
             String kid = phpResult.getResults().get("kid");
-            String bid = phpResult.getResults().get("bid");
             MenuInfoReloader.setUserData(null, null, kid, obj);
-            activity.getTabAdapter().setLogsFragment();
+            MenuInfoReloader.getActivity().getTabAdapter().setLogsFragment(true, true);
         } else {
-            activity.getTabAdapter().setKlantenFragment();
+            MenuInfoReloader.getActivity().getTabAdapter().setKlantenFragment(true, false);
+            Toast.makeText(MenuInfoReloader.getActivity(), "Deze QR-code is onbekend.\nZoek op postcode en adres naar uw klant" , Toast.LENGTH_LONG ).show();
         }
 
     }
 
     @Override
     public View getProgressView() {
-        return getActivity().findViewById(R.id.progress);
+        return MenuInfoReloader.getActivity().findViewById(R.id.progress);
     }
 
     @Override
     public View getParentView() {
         return rootView;
     }
+
+    @Override
+    public void loadDataset(Activity activity) {
+
+    }
+
+    @Override
+    public void resetData() {
+
+    }
+
 }

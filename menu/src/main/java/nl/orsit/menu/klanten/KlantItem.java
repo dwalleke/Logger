@@ -14,12 +14,6 @@ public class KlantItem {
     private String plaats;
     private String adres;
 
-    public KlantItem() {
-        this.key = null;
-        this.naam = "Geen resultaat";
-        this.plaats = "";
-    }
-
     public KlantItem(String key, JSONObject value) {
         this.key = key;
         try {

@@ -1,5 +1,6 @@
 package nl.orsit.menu.klanten;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,7 +59,6 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadDataset();
     }
 
     @Override
@@ -74,12 +75,7 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
                 new ListTouchListener(getActivity(), mRecyclerView ,new ListTouchListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         if (mDataset.size() > position) {
-                            String kid = mDataset.get(position).getKey();
-                            if (kid != null) {
-                                MenuInfoReloader.setUserData(null, null, kid, "");
-                                MenuDataInterface activity = (MenuDataInterface) getActivity();
-                                activity.getTabAdapter().setObjectenFragment();
-                            }
+                            pickKlant(mDataset.get(position));
                         }
                     }
 
@@ -103,7 +99,7 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
                 @Override
                 public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                     if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                        loadDataset();
+                        loadDataset(getActivity());
                         return true;
                     }
                     return false;
@@ -121,18 +117,26 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadDataset();
+                loadDataset(getActivity());
             }
         });
 
-
-
-
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
+        mDataset = new ArrayList<>();
         mAdapter = new KlantAdapter(mDataset);
         mRecyclerView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
         return rootView;
+    }
+
+    private void pickKlant(KlantItem klantItem) {
+        String kid = klantItem.getKey();
+        if (kid != null) {
+            MenuInfoReloader.setUserData(null, null, kid, "");
+            MenuDataInterface activity = (MenuDataInterface) getActivity();
+            activity.getTabAdapter().setObjectenFragment(true, true);
+        }
     }
 
 
@@ -140,28 +144,45 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
      * Generates Strings for RecyclerView's adapter. This data would usually come
      * from a local content provider or remote server.
      */
-    public void loadDataset() {
-        if (getActivity() != null) {
-            SharedPreferences prefs = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE);
-            PhpParams params = new PhpParams();
-            params.add("bid", prefs.getString("bid", ""));
-            if (MenuInfoReloader.getLevel() == MenuDataInterface.LEVEL.NORMAAL) {
-                if (mSearchPostcode != null && mSearchHuisnummer != null) {
-                    if (mPostcodeValidator.validate(mSearchPostcode.getText().toString()) && mHuisnummerValidator.validate(mSearchHuisnummer.getText().toString())) {
-                        params.add("searchPostcode", mSearchPostcode.getText().toString().toUpperCase());
-                        params.add("searchHuisnummer", mSearchHuisnummer.getText().toString());
-                        this.mTask = new BackendServiceCall(this, "javaSearchKlant", "default", params);
-                        this.mTask.execute();
-                    }
+    public void loadDataset(Activity activity) {
+        System.out.println("Loading dataset klanten");
+        SharedPreferences prefs = activity.getSharedPreferences("UserData", activity.MODE_PRIVATE);
+        PhpParams params = new PhpParams();
+        params.add("bid", prefs.getString("bid", ""));
+        if (MenuInfoReloader.getLevel() == MenuDataInterface.LEVEL.NORMAAL) {
+            String postcode = "";
+            String huisnummer = "";
+            if (mSearchPostcode != null && mSearchHuisnummer != null) {
+                if (mPostcodeValidator.validate(mSearchPostcode.getText().toString()) && mHuisnummerValidator.validate(mSearchHuisnummer.getText().toString())) {
+                    postcode = mSearchPostcode.getText().toString().toUpperCase();
+                    huisnummer = mSearchHuisnummer.getText().toString();
                 }
-            } else {
-                if (mSearchKlant != null) {
-                    params.add("searchKlant", mSearchKlant.getText().toString());
-                }
-                this.mTask = new BackendServiceCall(this, "javaSearchKlanten", "default", params);
-                this.mTask.execute();
             }
-            mDataset = new ArrayList<>();
+            params.add("searchPostcode", postcode);
+            params.add("searchHuisnummer", huisnummer);
+            this.mTask = new BackendServiceCall(this, "javaSearchKlant", "default", params);
+            this.mTask.execute();
+        } else {
+            if (mSearchKlant != null) {
+                params.add("searchKlant", mSearchKlant.getText().toString());
+            }
+            this.mTask = new BackendServiceCall(this, "javaSearchKlanten", "default", params);
+            this.mTask.execute();
+        }
+    }
+
+    @Override
+    public void resetData() {
+        this.mDataset = new ArrayList<>();
+        if (mSearchPostcode != null) {
+            mSearchPostcode.setText("");
+        }
+        if (mSearchHuisnummer != null) {
+            mSearchHuisnummer.setText("");
+        }
+        if (mAdapter != null) {
+            mAdapter.setDataSet(mDataset);
+            mAdapter.notifyDataSetChanged();
         }
     }
 
@@ -184,10 +205,15 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
                 mDataset.add(new KlantItem(obj.getString("kid"), obj));
             }
             if (mDataset.size() == 0) {
-                mDataset.add(new KlantItem());
+                Toast.makeText(MenuInfoReloader.getActivity(), "Geen resultaten gevonden." , Toast.LENGTH_LONG ).show();
+            } else {
+                if (mDataset.size() == 1) {
+                    pickKlant(mDataset.get(0));
+                }
             }
             mAdapter.setDataSet(mDataset);
             mAdapter.notifyDataSetChanged();
+            System.out.println("Loaded dataset klanten");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -195,13 +221,14 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
 
     @Override
     public View getProgressView() {
-        return getActivity().findViewById(R.id.progress);
+        return MenuInfoReloader.getActivity().findViewById(R.id.progress);
     }
 
     @Override
     public View getParentView() {
         return rootView;
     }
+
 
     public void editKlant() {
 

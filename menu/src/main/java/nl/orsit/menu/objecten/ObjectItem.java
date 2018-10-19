@@ -29,6 +29,12 @@ public class ObjectItem {
         }
     }
 
+    public ObjectItem() {
+        this.key = null;
+        this.merk = null;
+        this.type = null;
+    }
+
     public String getOmschrijving() {
         return logTypes.getUserType(this.soort).getOmschrijving();
     }

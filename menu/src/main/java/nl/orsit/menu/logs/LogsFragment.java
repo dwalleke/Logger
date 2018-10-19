@@ -161,7 +161,7 @@ public class LogsFragment extends SpinnerFragment implements ServiceCallback {
 
     @Override
     public View getProgressView() {
-        return rootView.findViewById(R.id.logs_progress);
+        return getActivity().findViewById(R.id.progress);
     }
 
     @Override

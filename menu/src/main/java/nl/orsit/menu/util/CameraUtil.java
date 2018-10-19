@@ -74,6 +74,8 @@ public class CameraUtil {
 
     }
 
+
+
     public void setImageAvailableLister(ImageReader.OnImageAvailableListener readerListener) {
         this.readerListener = readerListener;
 
@@ -233,6 +235,8 @@ public class CameraUtil {
             e.printStackTrace();
         }
     }
+
+
 
     protected void updatePreview() {
         if (null == cameraDevice) {

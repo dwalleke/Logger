@@ -1,59 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:theme="@style/MenuDataTheme"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:stretchColumns="*">
-
-    <ProgressBar
-        android:id="@+id/menu_progress"
-        style="?android:attr/progressBarStyleLarge"
+    android:orientation="horizontal">
+    <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />
-    <!-- first row of the table layout-->
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/menuBedrijf"
-            android:tooltipText="@string/menuBedrijfLabel"
-            android:text="@string/menuBedrijf"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/inverse"
-            />
-        <TextView
-            android:id="@+id/menuKlant"
-            android:tooltipText="@string/menuKlantLabel"
-            android:text="@string/menuKlant"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/inverse"
-            />
-    </TableRow>
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/menuMedewerker"
-            android:tooltipText="@string/menuMedewerkerLabel"
-            android:text="@string/menuMedewerker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/inverse"
-            />
-        <TextView
-            android:id="@+id/menuObject"
-            android:tooltipText="@string/menuObjectLabel"
-            android:text="@string/menuObject"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/inverse"
-            />
-    </TableRow>
-    <View android:layout_width="match_parent"
-        android:background="@color/accent"
-        android:layout_height="2dp" />
-</TableLayout>
+        android:layout_height="match_parent"
+        android:layout_marginRight="2dp"
+        android:src="@drawable/orsit_logo"/>
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:stretchColumns="*">
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/menuBedrijf"
+                android:tooltipText="@string/menuBedrijfLabel"
+                android:text="@string/menuBedrijf"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/inverse"
+                />
+            <TextView
+                android:id="@+id/menuKlant"
+                android:tooltipText="@string/menuKlantLabel"
+                android:text="@string/menuKlant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/inverse"
+                />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/menuMedewerker"
+                android:tooltipText="@string/menuMedewerkerLabel"
+                android:text="@string/menuMedewerker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/inverse"
+                />
+            <TextView
+                android:id="@+id/menuObject"
+                android:tooltipText="@string/menuObjectLabel"
+                android:text="@string/menuObject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/inverse"
+                />
+        </TableRow>
+        <View android:layout_width="match_parent"
+            android:background="@color/accent"
+            android:layout_height="2dp" />
+    </TableLayout>
+</LinearLayout>

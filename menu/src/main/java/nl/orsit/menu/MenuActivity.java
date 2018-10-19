@@ -1,200 +1,94 @@
 package nl.orsit.menu;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 
+import nl.orsit.base.CameraPermission;
 import nl.orsit.menu.data.LogTypes;
 import nl.orsit.menu.data.MenuDataFragment;
-import nl.orsit.menu.klanten.KlantenFragment;
-import nl.orsit.menu.logs.LogsFragment;
-import nl.orsit.menu.objecten.ObjectenFragment;
+import nl.orsit.menu.util.MenuInfoReloader;
+import nl.orsit.menu.util.OrsitPagerAdapter;
 
 public class MenuActivity extends AppCompatActivity implements MenuDataInterface {
 
-
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    private ViewPager mViewPager;
-    private MenuDataFragment menuDataFragment;
-    private KlantenFragment klantenFragment;
-    private ObjectenFragment objectenFragment;
-    private LogsFragment logsFragment;
+    private OrsitPagerAdapter adapterViewPager;
     private LogTypes logTypes = null;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_menu);
-
-        // Make our menu data fragment
-        if (savedInstanceState == null) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            menuDataFragment = new MenuDataFragment();
-            menuDataFragment.loadDataset(CHANGED.BID);
-            transaction.replace(R.id.menu_content_fragment, menuDataFragment);
-            transaction.commit();
-        }
+        // we controleren nu eerst de camera permissies, zodat we dit niet straks hoeven uit te voeren.
+        CameraPermission.getInstance().checkCameraPermission(this);
         SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+        // get the logtype information for the current company
         logTypes = new LogTypes(prefs.getString("bid", ""));
+        LEVEL level = determineLevel(prefs);
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        this.klantenFragment = new KlantenFragment();
-        this.objectenFragment = new ObjectenFragment();
-        this.logsFragment = new LogsFragment();
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        // create the three tabs
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int i, float v, int i1) {
-                // Not interested
-            }
-
-            @Override
-            public void onPageSelected(int i) {
-                savePreference(i);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int i) {
-                // not interested
-            }
-            private void savePreference(int position) {
-                SharedPreferences.Editor editor = getSharedPreferences("UserData", MODE_PRIVATE).edit();
-                editor.putInt("tab", position);
-                editor.apply();
-            }
-        });
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
-
-        // the scan roundedButton
-        FloatingActionButton scan = (FloatingActionButton) findViewById(R.id.scan);
-        scan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MenuActivity.this.scanObject();
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-            }
-        });
-
-        // the add roundedButton (does something different for each page (klantAdd, objectAdd, logAdd)
-        FloatingActionButton add = (FloatingActionButton) findViewById(R.id.add);
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
-                int tab = prefs.getInt("tab", 0);
-                switch(tab) {
-                    case 0:
-                        klantenFragment.addKlant();
-                        break;
-                    case 1:
-                        objectenFragment.addObject();
-                        break;
-                    case 2:
-                        logsFragment.addLog();
-                        break;
-                }
-            }
-        });
-
+        setContentView(R.layout.activity_menu);
+        // maak het informatie menu
+        createInfoMenu(savedInstanceState, level);
+        // maak het actie menu
+        createTabMenu();
+        // altijd eerst de scanner tonen.
+        getTabAdapter().setScanner();
     }
 
-    private void scanObject() {
+    private LEVEL determineLevel(SharedPreferences prefs) {
+        String lev = prefs.getString("lev", "normaal");
+        if ("beheerder".equals(lev)) return LEVEL.BEHEERDER;
+        if ("manager".equals(lev)) return LEVEL.MANAGER;
+        if ("admin".equals(lev)) return LEVEL.ADMIN;
+        return LEVEL.NORMAAL;
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        System.out.println("onActivityResult(RequestCode=" + requestCode + ", ResultCode=" + resultCode + ", data=" + data);
-    }
-
-    @Override
-    public void userDataChanged(CHANGED arg) {
-        switch (arg) {
-            case KID:
-                objectenFragment.loadDataset();
-                logsFragment.loadDataset();
-                break;
-            case OBJ:
-                logsFragment.loadDataset();
-        }
-        menuDataFragment.loadDataset(arg);
-    }
-
-    @Override
-    public void tabKlanten() {
-        mViewPager.setCurrentItem(0);
-    }
-
-    @Override
-    public void tabObjecten() {
-        mViewPager.setCurrentItem(1);
-    }
-
-    @Override
-    public void tabLogs() {
-        mViewPager.setCurrentItem(2);
-    }
+    public OrsitPagerAdapter getTabAdapter() { return adapterViewPager; }
 
     @Override
     public LogTypes getLogTypes() { return this.logTypes; }
 
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
+    private void createInfoMenu(Bundle savedInstanceState, LEVEL level) {
+        if (savedInstanceState == null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            MenuDataFragment fragment = new MenuDataFragment();
+            MenuInfoReloader.createInstance(fragment, this, level);
+            MenuInfoReloader.reload();
+            transaction.replace(R.id.menu_content_fragment, fragment);
+            transaction.commit();
         }
+    }
 
-        @Override
-        public Fragment getItem(int position) {
-            System.out.println("Setting position from viewPagerAdapter: " + position);
-            switch(position) {
-                case 0: return klantenFragment;
-                case 1: return objectenFragment;
-                default: return logsFragment;
+    private void createTabMenu() {
+        // create the four tabs
+        final ViewPager vpPager = (ViewPager) findViewById(R.id.vpPager);
+        adapterViewPager = new OrsitPagerAdapter(getSupportFragmentManager(), vpPager);
+        vpPager.setAdapter(adapterViewPager);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.addTab(tabLayout.newTab().setText("Scan"));
+        tabLayout.addTab(tabLayout.newTab().setText("Zoek"));
+        tabLayout.addTab(tabLayout.newTab().setText("Logs"));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                adapterViewPager.setTabPosition(tab.getPosition());
             }
-        }
 
-        @Override
-        public int getCount() {
-            // Show 3 total pages.
-            return 3;
-        }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                adapterViewPager.setTabPosition(tab.getPosition());
+            }
+
+        });
     }
 
 }

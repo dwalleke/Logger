@@ -87,7 +87,11 @@ public class LoginActivity extends SpinnerActivity implements ServiceCallback {
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
-        email = "a.reudink@gmail.com";
+        if (email.equals("a")) {
+            email = "a.reudink@gmail.com";
+        } else {
+            email = "mibosman75@gmail.com";
+        }
         password = "techniek";
 
         boolean cancel = false;
@@ -133,6 +137,7 @@ public class LoginActivity extends SpinnerActivity implements ServiceCallback {
         showProgress(false);
         if (phpResult.isOk()) {
             SharedPreferences.Editor editor = getSharedPreferences("UserData", MODE_PRIVATE).edit();
+            editor.clear();
             editor.putString("bid", phpResult.getResults().get("bid"));
             editor.putString("mid", phpResult.getResults().get("mid"));
             editor.putString("lev", phpResult.getResults().get("lev"));

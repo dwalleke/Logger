@@ -6,46 +6,17 @@ $data->errors = (object) array();
 $data->results = (object) array();
 $data->input = $_POST;
 
+$data->results->bedrijf = "Niet ingelogd";
+$data->results->medewerker = "Niet ingelogd";
+$data->results->klant = "Geen klant geselecteerd";
+$data->results->object = "Geen object geselecteerd";
 
 
-if (hasKey("askbid", $_POST)) {
-	if ($_POST["bid"] == "") {
-		$data->results->bedrijf = "Niet ingelogd";
-	} else {
-		$data->results->bedrijf = getBedrijf($db, $_POST["bid"])["naam"];
-	}
-}
-if (hasKey("askmid", $_POST)) {
-	if ($_POST["bid"] == "" || $_POST["mid"] == "") {
-		$data->results->medewerker = "Niet ingelogd";
-	} else {
-		$data->results->medewerker = getMedewerker($db, $_POST["bid"], $_POST["mid"])["naam"];
-	}
-}
-if (hasKey("askkid", $_POST)) {
-	if ($_POST["bid"] == "" || $_POST["kid"] == "") {
-		$data->results->klant = "Geen klant geselecteerd";
-	} else {
-		$data->results->klant = getKlant($db, $_POST["bid"], $_POST["kid"])["naam"];
-	}
-}
-if (hasKey("askobj", $_POST)) {
-	if ($_POST["obj"] == "") {
-		$data->results->object = "Geen object geselecteerd";
-	} else {
-		$r = getQRCode($db, stripslashes($_POST["obj"]));
-		$data->results->object = $r["merk"]." ".$r["type"];
-	}
-}
+$r = getMenuData($db, $_POST["bid"], $_POST["mid"], $_POST["kid"], stripslashes($_POST["obj"]));
+if ($r["bedrijf"] != "") { $data->results->bedrijf = $r["bedrijf"]; }
+if ($r["medewerker"] != "") { $data->results->medewerker = $r["medewerker"]; }
+if ($r["klant"] != "") { $data->results->klant = $r["klant"]; }
+if ($r["object"] != "") { $data->results->object = $r["object"]; }
 echo json_encode($data);
-
-
-
-
-
-
-
-
-
 
 ?>

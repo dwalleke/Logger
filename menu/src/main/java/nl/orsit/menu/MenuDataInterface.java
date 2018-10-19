@@ -1,16 +1,16 @@
 package nl.orsit.menu;
 
 import nl.orsit.menu.data.LogTypes;
+import nl.orsit.menu.util.OrsitPagerAdapter;
 
 public interface MenuDataInterface {
-    void userDataChanged(CHANGED kid);
-    void tabKlanten();
-    void tabObjecten();
-    void tabLogs();
 
-    enum CHANGED { BID, MID, KID, OBJ, LOG }
+    OrsitPagerAdapter getTabAdapter();
+
     enum LOG_TYPE { MultiText, Number, Text, Image, Choice }
+    enum LEVEL { NORMAAL, MANAGER, BEHEERDER, ADMIN }
 
     LogTypes getLogTypes();
 
 }
+

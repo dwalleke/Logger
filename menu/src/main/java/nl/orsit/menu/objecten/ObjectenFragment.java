@@ -23,6 +23,8 @@ import nl.orsit.base.SpinnerFragment;
 import nl.orsit.menu.ListTouchListener;
 import nl.orsit.menu.MenuDataInterface;
 import nl.orsit.menu.R;
+import nl.orsit.menu.klanten.KlantItem;
+import nl.orsit.menu.util.MenuInfoReloader;
 
 public class ObjectenFragment extends SpinnerFragment implements ServiceCallback {
 
@@ -48,28 +50,28 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
         mRecyclerView.addOnItemTouchListener(
                 new ListTouchListener(getActivity(), mRecyclerView ,new ListTouchListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        String obj = mDataset.get(position).getKey();
-                        String soort = mDataset.get(position).getSoort();
-                        savePreference(obj, soort);
-                        MenuDataInterface activity = (MenuDataInterface) getActivity();
-                        activity.userDataChanged(MenuDataInterface.CHANGED.OBJ);
-                        activity.tabLogs();
+                        if (mDataset.size() > position) {
+                            String obj = mDataset.get(position).getKey();
+                            if (obj != null) {
+                                String type = mDataset.get(position).getSoort();
+                                MenuInfoReloader.setUserData(null, null, null, obj);
+                                MenuInfoReloader.savePref("obj_soort", type);
+                                MenuDataInterface activity = (MenuDataInterface) getActivity();
+                                activity.getTabAdapter().setLogsFragment();
+                            }
+                        }
                     }
 
                     @Override public void onLongItemClick(View view, int position) {
-                        String obj = mDataset.get(position).getKey();
-                        String type = mDataset.get(position).getType();
-                        savePreference(obj, type);
-                        // TODO long click
-                    }
-
-                    private void savePreference(String obj, String type) {
-                        SharedPreferences.Editor editor = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE).edit();
-                        editor.putString("obj", obj);
-                        editor.putString("obj_soort", type);
-                        System.out.println("SETTING SOORT: " + obj + " - " + type);
-                        editor.apply();
-
+                        if (mDataset.size() > position) {
+                            String obj = mDataset.get(position).getKey();
+                            if (obj != null) {
+                                String type = mDataset.get(position).getType();
+                                MenuInfoReloader.setUserData(null, null, null, obj);
+                                MenuInfoReloader.savePref("obj_soort", type);
+                                // TODO long click
+                            }
+                        }
                     }
 
                 })
@@ -120,6 +122,10 @@ public class ObjectenFragment extends SpinnerFragment implements ServiceCallback
                 JSONObject obj = arr.getJSONObject(i);
                 mDataset.add(new ObjectItem(((MenuDataInterface)getActivity()).getLogTypes(), obj));
             }
+            if (mDataset.size() == 0) {
+                mDataset.add(new ObjectItem());
+            }
+
             mAdapter.setDataSet(mDataset);
             mAdapter.notifyDataSetChanged();
         } catch (JSONException e) {

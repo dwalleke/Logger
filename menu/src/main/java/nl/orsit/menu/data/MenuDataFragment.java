@@ -23,7 +23,7 @@ public class MenuDataFragment extends SpinnerFragment implements ServiceCallback
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadDataset(MenuDataInterface.CHANGED.BID);
+        loadDataset();
     }
 
 
@@ -32,12 +32,16 @@ public class MenuDataFragment extends SpinnerFragment implements ServiceCallback
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.menu_data, container, false);
+//        ViewGroup.LayoutParams lp = rootView.getLayoutParams();
+//        lp.height = 200;
+//        rootView.setLayoutParams(lp);
+
         return rootView;
     }
 
     @Override
     public View getProgressView() {
-        return getActivity().findViewById(R.id.menu_progress);
+        return getActivity().findViewById(R.id.progress);
     }
 
     @Override
@@ -45,7 +49,7 @@ public class MenuDataFragment extends SpinnerFragment implements ServiceCallback
         return getActivity().findViewById(R.id.appbar);
     }
 
-    public void loadDataset(MenuDataInterface.CHANGED arg) {
+    public void loadDataset() {
         if (getActivity() != null) {
             SharedPreferences prefs = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE);
             PhpParams params = new PhpParams();
@@ -53,25 +57,6 @@ public class MenuDataFragment extends SpinnerFragment implements ServiceCallback
             params.add("mid", prefs.getString("mid", ""));
             params.add("kid", prefs.getString("kid", ""));
             params.add("obj", prefs.getString("obj", ""));
-            switch (arg) {
-                case OBJ:
-                    params.add("askobj", "yes");
-                    break;
-                case KID:
-                    params.add("askkid", "yes");
-                    params.add("askobj", "yes");
-                    break;
-                case MID:
-                    params.add("askmid", "yes");
-                    params.add("askkid", "yes");
-                    params.add("askobj", "yes");
-                case BID:
-                    params.add("askbid", "yes");
-                    params.add("askmid", "yes");
-                    params.add("askkid", "yes");
-                    params.add("askobj", "yes");
-                    break;
-            }
             this.mTask = new BackendServiceCall(this, "javaData", "default", params);
             this.mTask.execute();
         }
@@ -85,10 +70,8 @@ public class MenuDataFragment extends SpinnerFragment implements ServiceCallback
     }
 
     private void checkField(PhpResult phpResult, String key, int textView) {
-        if (phpResult.getResults().containsKey(key)) {
-            TextView bedrijf = (TextView) getActivity().findViewById(textView);
-            bedrijf.setText(phpResult.getResults().get(key));
-        }
+        TextView field = (TextView) getActivity().findViewById(textView);
+        field.setText(phpResult.getResults().get(key));
     }
 
     @Override

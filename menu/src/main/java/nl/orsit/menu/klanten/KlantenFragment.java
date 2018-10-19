@@ -2,7 +2,9 @@ package nl.orsit.menu.klanten;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
@@ -28,16 +30,29 @@ import nl.orsit.base.SpinnerFragment;
 import nl.orsit.menu.ListTouchListener;
 import nl.orsit.menu.MenuDataInterface;
 import nl.orsit.menu.R;
+import nl.orsit.menu.util.HuisnummerValidator;
+import nl.orsit.menu.util.MenuInfoReloader;
+import nl.orsit.menu.util.PostcodeValidator;
 
 public class KlantenFragment extends SpinnerFragment implements ServiceCallback {
 
     protected RecyclerView mRecyclerView;
-    protected TextInputEditText mSearchView;
+    protected TextInputEditText mSearchKlant;
+    protected TextInputEditText mSearchPostcode;
+    protected TextInputLayout mSearchPostcodeWrapper;
+    protected PostcodeValidator mPostcodeValidator;
+    protected TextInputEditText mSearchHuisnummer;
+    protected TextInputLayout mSearchHuisnummerWrapper;
+    protected HuisnummerValidator mHuisnummerValidator;
     protected KlantAdapter mAdapter;
     protected RecyclerView.LayoutManager mLayoutManager;
     protected List<KlantItem> mDataset;
     private BackendServiceCall mTask;
     private View rootView;
+
+    public KlantenFragment() {
+        super();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,43 +63,60 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.klanten, container, false);
+        if (MenuInfoReloader.getLevel() == MenuDataInterface.LEVEL.NORMAAL) {
+            rootView = inflater.inflate(R.layout.klanten_postcode_huisnummer, container, false);
+        } else {
+            rootView = inflater.inflate(R.layout.klanten_naam_postcode_plaats, container, false);
+            createAddButton();
+        }
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.klantenRecycleView);
         mRecyclerView.addOnItemTouchListener(
                 new ListTouchListener(getActivity(), mRecyclerView ,new ListTouchListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        String kid = mDataset.get(position).getKey();
-                        savePreference(kid);
-                        MenuDataInterface activity = (MenuDataInterface) getActivity();
-                        activity.userDataChanged(MenuDataInterface.CHANGED.KID);
-                        activity.tabObjecten();
+                        if (mDataset.size() > position) {
+                            String kid = mDataset.get(position).getKey();
+                            if (kid != null) {
+                                MenuInfoReloader.setUserData(null, null, kid, "");
+                                MenuDataInterface activity = (MenuDataInterface) getActivity();
+                                activity.getTabAdapter().setObjectenFragment();
+                            }
+                        }
                     }
 
                     @Override public void onLongItemClick(View view, int position) {
-                        String kid = mDataset.get(position).getKey();
-                        savePreference(kid);
-                        editKlant();
+                        if (MenuInfoReloader.getLevel() != MenuDataInterface.LEVEL.NORMAAL) {
+                            if (mDataset.size() > position) {
+                                String kid = mDataset.get(position).getKey();
+                                if (kid != null) {
+                                    MenuInfoReloader.setUserData(null, null, kid, "");
+                                    editKlant();
+                                }
+                            }
+                        }
                     }
 
-                    private void savePreference(String kid) {
-                        SharedPreferences.Editor editor = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE).edit();
-                        editor.putString("kid", kid);
-                        editor.putString("obj", "");
-                        editor.apply();
-                    }
                 })
         );
-        mSearchView = (TextInputEditText) rootView.findViewById(R.id.searchKlant);
-        mSearchView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    loadDataset();
-                    return true;
+        if (MenuInfoReloader.getLevel() != MenuDataInterface.LEVEL.NORMAAL) {
+            mSearchKlant = (TextInputEditText) rootView.findViewById(R.id.searchKlant);
+            mSearchKlant.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                    if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
+                        loadDataset();
+                        return true;
+                    }
+                    return false;
                 }
-                return false;
-            }
-        });
+            });
+        } else {
+            mSearchPostcodeWrapper = (TextInputLayout) rootView.findViewById(R.id.searchPostcodeWrapper);
+            mPostcodeValidator = new PostcodeValidator(mSearchPostcodeWrapper);
+            mSearchPostcode = (TextInputEditText) rootView.findViewById(R.id.searchPostcode);
+            mSearchHuisnummerWrapper = (TextInputLayout) rootView.findViewById(R.id.searchHuisnummerWrapper);
+            mHuisnummerValidator = new HuisnummerValidator(mSearchHuisnummerWrapper);
+            mSearchHuisnummer = (TextInputEditText) rootView.findViewById(R.id.searchHuisnummer);
+        }
         Button button = (Button) rootView.findViewById(R.id.zoekKlantButton);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,11 +145,22 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
             SharedPreferences prefs = getActivity().getSharedPreferences("UserData", getActivity().MODE_PRIVATE);
             PhpParams params = new PhpParams();
             params.add("bid", prefs.getString("bid", ""));
-            if (mSearchView != null) {
-                params.add("searchKlant", mSearchView.getText().toString());
+            if (MenuInfoReloader.getLevel() == MenuDataInterface.LEVEL.NORMAAL) {
+                if (mSearchPostcode != null && mSearchHuisnummer != null) {
+                    if (mPostcodeValidator.validate(mSearchPostcode.getText().toString()) && mHuisnummerValidator.validate(mSearchHuisnummer.getText().toString())) {
+                        params.add("searchPostcode", mSearchPostcode.getText().toString().toUpperCase());
+                        params.add("searchHuisnummer", mSearchHuisnummer.getText().toString());
+                        this.mTask = new BackendServiceCall(this, "javaSearchKlant", "default", params);
+                        this.mTask.execute();
+                    }
+                }
+            } else {
+                if (mSearchKlant != null) {
+                    params.add("searchKlant", mSearchKlant.getText().toString());
+                }
+                this.mTask = new BackendServiceCall(this, "javaSearchKlanten", "default", params);
+                this.mTask.execute();
             }
-            this.mTask = new BackendServiceCall(this, "javaSearchKlanten", "default", params);
-            this.mTask.execute();
             mDataset = new ArrayList<>();
         }
     }
@@ -140,6 +183,9 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
                 JSONObject obj = arr.getJSONObject(i);
                 mDataset.add(new KlantItem(obj.getString("kid"), obj));
             }
+            if (mDataset.size() == 0) {
+                mDataset.add(new KlantItem());
+            }
             mAdapter.setDataSet(mDataset);
             mAdapter.notifyDataSetChanged();
         } catch (JSONException e) {
@@ -149,7 +195,7 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
 
     @Override
     public View getProgressView() {
-        return rootView.findViewById(R.id.klant_progress);
+        return getActivity().findViewById(R.id.progress);
     }
 
     @Override
@@ -157,13 +203,19 @@ public class KlantenFragment extends SpinnerFragment implements ServiceCallback 
         return rootView;
     }
 
-    public void addKlant() {
-
-
-    }
-
     public void editKlant() {
 
     }
+
+    private void createAddButton() {
+        FloatingActionButton add = (FloatingActionButton) getActivity().findViewById(R.id.add);
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+
+    }
+
 
 }

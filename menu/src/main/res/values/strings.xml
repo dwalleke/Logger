@@ -1,7 +1,15 @@
 <resources>
+    <!-- NORMAAL -->
+    <string name="tabScan">Scan</string>
+    <string name="tabPostcodeHuisnummer">Zoek</string>
+    <string name="tabLogs">Logs</string>
+
+    <!-- BEHEERDER -->
     <string name="tabKid">Klant</string>
     <string name="tabObj">Object</string>
     <string name="tabLog">Log</string>
+
+
     <string name="menuBedrijfLabel">Bedrijf</string>
     <string name="menuMedewerkerLabel">Medewerker</string>
     <string name="menuKlantLabel">Klant</string>
@@ -11,5 +19,7 @@
     <string name="menuKlant">Geen klant geselecteerd</string>
     <string name="menuObject">Geen object geselecteerd</string>
     <string name="searchKlant">Zoek op naam, postcode of plaats</string>
+    <string name="searchPostcode">Postcode</string>
+    <string name="searchHuisnummer">Huisnummer</string>
     <string name="zoekButton">Zoeken</string>
 </resources>

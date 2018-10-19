@@ -37,6 +37,15 @@ function findMedewerker($db, $email) {
 	$stmt->execute();
 	return $stmt->fetch(PDO::FETCH_ASSOC);
 }
+function searchKlant($db, $postcode, $huisnummer) {
+	$select = "select * from klanten where huisnr = :huisnummer and postcode = :postcode";
+	$s = $db->prepare($select);
+	$s->bindValue(":postcode", $postcode);
+	$s->bindValue(":huisnummer", $huisnummer);
+	$s->execute();
+	return $s->fetchAll(PDO::FETCH_ASSOC);
+}
+
 // javaSearchKlanten
 function searchKlanten($db, $bid, $search) {
 	$select = "select * from klanten where bid=:bid ";
@@ -118,6 +127,45 @@ function getLog($db, $lid) {
 	$stmt->bindValue(":lid", $lid);
 	$stmt->execute();
 	return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+/*
+select 
+group_concat(v.b SEPARATOR '') as bedrijf,
+group_concat(v.m SEPARATOR '') as medewerker,
+group_concat(v.k SEPARATOR '') as klant,
+group_concat(v.o SEPARATOR '') as object
+from 
+	((select 1 as id, naam as b, "" as m, "" as k, "" as o from bedrijven where bid = "102030102030ACBEHIJ9") 
+	union 
+	(select 1 as id, "" as b, naam as m, "" as k, "" as o from medewerkers where email = "mibosman75@gmail.com") 
+	union
+	(select 1 as id, "" as b, "" as m, naam as k, "" as o from klanten where kid = "21") 
+	union 
+	(select 1 as id, "" as b, "" as m, "" as k, concat(merk, '/', type) as o from qrcode where qr = "sj2rgKImxuE6CPD01YwL9yUk5QblfR")) v
+group by id
+*/
+function getMenuData($db, $bid, $mid, $kid, $obj) {
+	$select = "select group_concat(v.b SEPARATOR '') as bedrijf, group_concat(v.m SEPARATOR '') as medewerker, group_concat(v.k SEPARATOR '') as klant, group_concat(v.o SEPARATOR '') as object from ";
+	$select .= "((select 1 as id, naam as b, '' as m, '' as k, '' as o from bedrijven where bid = :bid) union ";
+	$select .= "(select 1 as id, '' as b, naam as m, '' as k, '' as o from medewerkers where email = :mid) union ";
+	$select .= "(select 1 as id, '' as b, '' as m, naam as k, '' as o from klanten where kid = :kid) union ";
+	$select .= "(select 1 as id, '' as b, '' as m, '' as k, concat(merk, '/', type) as o from qrcode where qr = :obj)) v group by id";
+	$s = $db->prepare($select);
+	$s->bindValue(":bid", $bid);
+	$s->bindValue(":mid", $mid);
+	$s->bindValue(":kid", $kid);
+	$s->bindValue(":obj", $obj);
+	$s->execute();
+	return $s->fetch(PDO::FETCH_ASSOC);
+}
+
+
+function scanObject($db, $code) {
+	$select = "select q.qr, k.kid, k.bid from qrcode q inner join klanten k on k.kid = q.klant where code = :code";
+	$s = $db->prepare($select);
+	$s->bindValue(":code", $code);
+	$s->execute();
+	return $s->fetch(PDO::FETCH_ASSOC);
 }
 // javaData, javaAddLog
 function getQRCode($db, $qr) {
